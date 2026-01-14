@@ -26,15 +26,6 @@ public class CategoryApiController {
         return repo.findAll();
     }
 
-//    @PostMapping
-//    public ResponseEntity<Category> create(@Valid @RequestBody CategoryDto dto) {
-//        Category category = new Category();
-//        category.setName(dto.getName());
-//
-//        Category saved = repo.save(category);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-//    }
-
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody CategoryDto dto) {
         if (repo.existsByName(dto.getName())) {

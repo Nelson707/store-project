@@ -3,6 +3,7 @@ import { createProduct } from "../../api/products";
 import api from "../../api/axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import Layout from "../component/layout";
 
 export default function AddProduct() {
     const navigate = useNavigate();
@@ -27,23 +28,6 @@ export default function AddProduct() {
             [name]: files ? files[0] : value,
         }));
     };
-
-    //   const handleSubmit = async (e) => {
-    //     e.preventDefault();
-
-    //     const fd = new FormData();
-    //     Object.entries(form).forEach(([key, value]) => {
-    //       if (value !== null && value !== "") fd.append(key, value);
-    //     });
-
-    //     try {
-    //       await createProduct(fd);
-    //       toast.success("Product created successfully");
-    //       navigate("/products");
-    //     } catch (err) {
-    //       toast.error(err.response?.data?.message || "Failed to create product");
-    //     }
-    //   };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -83,65 +67,67 @@ export default function AddProduct() {
     };
 
     return (
-        <div className="max-w-2xl mx-auto mt-10 bg-white shadow rounded-lg p-6">
-            <h1 className="text-2xl font-semibold mb-6">Add Product</h1>
+        <Layout title="Products" subtitle="Add a new product">
+            <div className="max-w-2xl mx-auto mt-10 bg-white shadow rounded-lg p-6">
+                <h1 className="text-2xl font-semibold mb-6">Add Product</h1>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <input
-                    name="name"
-                    placeholder="Product name"
-                    className="w-full border rounded px-3 py-2"
-                    onChange={handleChange}
-                    required
-                />
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <input
+                        name="name"
+                        placeholder="Product name"
+                        className="w-full border rounded px-3 py-2"
+                        onChange={handleChange}
+                        required
+                    />
 
-                <input
-                    name="brand"
-                    placeholder="Brand"
-                    className="w-full border rounded px-3 py-2"
-                    onChange={handleChange}
-                />
+                    <input
+                        name="brand"
+                        placeholder="Brand"
+                        className="w-full border rounded px-3 py-2"
+                        onChange={handleChange}
+                    />
 
-                <input
-                    type="number"
-                    name="price"
-                    placeholder="Price"
-                    className="w-full border rounded px-3 py-2"
-                    onChange={handleChange}
-                    required
-                />
+                    <input
+                        type="number"
+                        name="price"
+                        placeholder="Price"
+                        className="w-full border rounded px-3 py-2"
+                        onChange={handleChange}
+                        required
+                    />
 
-                <select
-                    name="categoryId"
-                    className="w-full border rounded px-3 py-2"
-                    onChange={handleChange}
-                    required
-                >
-                    <option value="">Select category</option>
-                    {categories.map(c => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                </select>
+                    <select
+                        name="categoryId"
+                        className="w-full border rounded px-3 py-2"
+                        onChange={handleChange}
+                        required
+                    >
+                        <option value="">Select category</option>
+                        {categories.map(c => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
 
-                <textarea
-                    name="description"
-                    placeholder="Description"
-                    className="w-full border rounded px-3 py-2"
-                    onChange={handleChange}
-                />
+                    <textarea
+                        name="description"
+                        placeholder="Description"
+                        className="w-full border rounded px-3 py-2"
+                        onChange={handleChange}
+                    />
 
-                <input
-                    type="file"
-                    name="imageFile"
-                    className="w-full"
-                    onChange={handleChange}
-                    required
-                />
+                    <input
+                        type="file"
+                        name="imageFile"
+                        className="w-full"
+                        onChange={handleChange}
+                        required
+                    />
 
-                <button className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700">
-                    Save Product
-                </button>
-            </form>
-        </div>
+                    <button className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700">
+                        Save Product
+                    </button>
+                </form>
+            </div>
+        </Layout>
     );
 }
