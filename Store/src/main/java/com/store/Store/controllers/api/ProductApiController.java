@@ -21,7 +21,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
-// In your controller class
 @CrossOrigin(origins = "http://localhost:5173",
         allowedHeaders = "*",
         methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
@@ -106,22 +105,6 @@ public class ProductApiController {
     }
 
     // IMAGE HELPERS
-//    private String saveImage(MultipartFile image) {
-//        try {
-//            String uploadDir = "public/images/";
-//            Files.createDirectories(Paths.get(uploadDir));
-//
-//            String filename = System.currentTimeMillis() + "_" + image.getOriginalFilename();
-//            Files.copy(
-//                    image.getInputStream(),
-//                    Paths.get(uploadDir + filename),
-//                    StandardCopyOption.REPLACE_EXISTING
-//            );
-//            return filename;
-//        } catch (Exception e) {
-//            throw new RuntimeException("Failed to save image");
-//        }
-//    }
     private String saveImage(MultipartFile image) {
         try {
             // Get absolute path
