@@ -2,7 +2,7 @@ package com.store.Store.controllers;
 
 import com.store.Store.models.Category;
 import com.store.Store.models.CategoryDto;
-import com.store.Store.services.CategoryRepository;
+import com.store.Store.repositories.CategoryRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

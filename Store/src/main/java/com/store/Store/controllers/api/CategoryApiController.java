@@ -2,7 +2,7 @@ package com.store.Store.controllers.api;
 
 import com.store.Store.models.Category;
 import com.store.Store.models.CategoryDto;
-import com.store.Store.services.CategoryRepository;
+import com.store.Store.repositories.CategoryRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/categories")
-@CrossOrigin(origins = "http://localhost:5173")
+//@CrossOrigin(origins = "http://localhost:5173")
 public class CategoryApiController {
     private final CategoryRepository repo;
 
