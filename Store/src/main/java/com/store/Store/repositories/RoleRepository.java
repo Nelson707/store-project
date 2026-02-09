@@ -1,4 +1,4 @@
-package com.store.Store.services;
+package com.store.Store.repositories;
 
 import com.store.Store.models.Role;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -3,8 +3,8 @@ package com.store.Store.controllers.api;
 import com.store.Store.models.Category;
 import com.store.Store.models.Product;
 import com.store.Store.models.ProductDto;
-import com.store.Store.services.CategoryRepository;
-import com.store.Store.services.ProductsRepository;
+import com.store.Store.repositories.CategoryRepository;
+import com.store.Store.repositories.ProductsRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,9 +21,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
-@CrossOrigin(origins = "http://localhost:5173",
-        allowedHeaders = "*",
-        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
+//@CrossOrigin(origins = "http://localhost:5173",
+//        allowedHeaders = "*",
+//        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
 public class ProductApiController {
 
     private final ProductsRepository productRepo;

@@ -1,8 +1,22 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import api from '../../api/axios';
+import { toastify } from '../../utils/toast';
 
 const Navbar = ({ collapsed, onToggle }) => {
     const location = useLocation();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        try {
+            await api.post("/auth/logout"); // POST request to Spring Security
+            toastify("Logged out successfully", "success");
+            navigate("/"); // redirect to login page
+        } catch (error) {
+            toastify("Failed to logout", "error");
+            console.error(error);
+        }
+    };
 
     const menuItems = [
         {
@@ -130,6 +144,12 @@ const Navbar = ({ collapsed, onToggle }) => {
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900 truncate">Nelson Spring</p>
                             <p className="text-xs text-gray-500 truncate">admin@shop.com</p>
+                            <button
+                                onClick={handleLogout}
+                                className="text-xs text-blue-600 hover:underline"
+                            >
+                                Logout
+                            </button>
                         </div>
                     )}
                 </div>
