@@ -29,6 +29,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/**").permitAll() // Allow all API requests
                         .requestMatchers("/images/**").permitAll() // Allow image access
+//                        .requestMatchers("/api/auth/me").authenticated()
                         .anyRequest().authenticated() // Require auth for other routes
                 )
                 .formLogin(form -> form.disable())
