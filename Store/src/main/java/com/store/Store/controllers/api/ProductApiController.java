@@ -43,6 +43,14 @@ public class ProductApiController {
         return productRepo.findAll();
     }
 
+    // GET ONE PRODUCT
+    @GetMapping("/{id}")
+    public Product getOne(@PathVariable int id) {
+        return productRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+    }
+
+
     // CREATE
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> create(@Valid @ModelAttribute ProductDto dto) {

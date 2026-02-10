@@ -1,8 +1,6 @@
 package com.store.Store.controllers.api;
 
-import com.store.Store.models.AppUser;
-import com.store.Store.models.RegisterDto;
-import com.store.Store.models.Role;
+import com.store.Store.models.*;
 import com.store.Store.repositories.AppUserRepository;
 import com.store.Store.repositories.RoleRepository;
 import jakarta.validation.Valid;
@@ -10,18 +8,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.store.Store.models.LoginDto;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 
 import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -93,10 +89,49 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        // Get logged-in user email
+        String email = authentication.getName();
+
+        AppUser user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        AuthResponseDto response = new AuthResponseDto(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPhoneNumber(),
+                user.getRoles()
+                        .stream()
+                        .map(role -> role.getName())
+                        .collect(Collectors.toSet())
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> me(Authentication authentication) {
+
+        // email is used as username
+        String email = authentication.getName();
+
+        AppUser user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         return ResponseEntity.ok(
-                Collections.singletonMap("message", "Login successful")
+                Map.of(
+                        "id", user.getId(),
+                        "name", user.getName(),
+                        "email", user.getEmail(),
+                        "phoneNumber", user.getPhoneNumber(),
+                        "roles", user.getRoles()
+                                .stream()
+                                .map(role -> role.getName())
+                                .toList()
+                )
         );
     }
+
 
 
 }
