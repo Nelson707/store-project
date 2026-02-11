@@ -65,6 +65,7 @@ public class ProductApiController {
         product.setPrice(dto.getPrice());
         product.setDescription(dto.getDescription());
         product.setCategory(category);
+        product.setStockQuantity(dto.getStockQuantity());
         product.setImageFileName(imageFileName);
         product.setCreatedAt(new Date());
 
@@ -95,6 +96,7 @@ public class ProductApiController {
         product.setBrand(dto.getBrand());
         product.setPrice(dto.getPrice());
         product.setDescription(dto.getDescription());
+        product.setStockQuantity(dto.getStockQuantity());
         product.setCategory(category);
 
         return ResponseEntity.ok(productRepo.save(product));
