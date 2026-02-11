@@ -12,6 +12,7 @@ public class ProductDto {
 
     @NotNull(message = "Category is required")
     private Long categoryId; // NEW: category foreign key
+    private int stockQuantity;
 
     public String getName() {
         return name;
@@ -35,6 +36,14 @@ public class ProductDto {
 
     public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public int getStockQuantity() {
+        return stockQuantity;
+    }
+
+    public void setStockQuantity(int stockQuantity) {
+        this.stockQuantity = stockQuantity;
     }
 
     public double getPrice() {

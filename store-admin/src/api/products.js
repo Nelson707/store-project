@@ -16,7 +16,7 @@ export const getProductById = async (id) => {
   return res.data;
 };
 
-// ============================
+// ============================i
 // CREATE PRODUCT
 // ============================
 // export const createProduct = async (formData) => {

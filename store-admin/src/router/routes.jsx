@@ -5,6 +5,7 @@ import Dashboard from "../components/dashboard/dashboard";
 import Products from "../components/products/Products";
 import AddProduct from "../components/products/AddProduct";
 import EditProduct from "../components/products/EditProduct";
+import ViewProduct from "../components/products/viewProduct";
 
 
 
@@ -29,8 +30,12 @@ export const router = createBrowserRouter([
         path: "/products/add",
         element: <AddProduct />,
     },
-     {
+    {
         path: "/products/edit/:id",
         element: <EditProduct />,
+    },
+    {
+        path: "/products/view/:id",
+        element: <ViewProduct />,
     },
 ]);
