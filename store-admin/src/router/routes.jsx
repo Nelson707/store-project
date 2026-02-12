@@ -6,6 +6,11 @@ import Products from "../components/products/Products";
 import AddProduct from "../components/products/AddProduct";
 import EditProduct from "../components/products/EditProduct";
 import ViewProduct from "../components/products/viewProduct";
+import Orders from "../components/orders/orders";
+import Users from "../components/users/users";
+import POSHome from "../components/pos/posHome";
+import Analytics from "../components/analytics/analytics";
+import Settings from "../components/settings/settings";
 
 
 
@@ -37,5 +42,25 @@ export const router = createBrowserRouter([
     {
         path: "/products/view/:id",
         element: <ViewProduct />,
+    },
+    {
+        path: "/orders",
+        element: <Orders />,
+    },
+    {
+        path: "/users",
+        element: <Users />,
+    },
+    {
+        path: "/pos",
+        element: <POSHome />,
+    },
+    {
+        path: "/analytics",
+        element: <Analytics />,
+    },
+    {
+        path: "/settings",
+        element: <Settings />,
     },
 ]);
