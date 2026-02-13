@@ -1,5 +1,8 @@
 package com.store.Store.controllers.api;
 
+import com.store.Store.dto.AuthResponseDto;
+import com.store.Store.dto.LoginDto;
+import com.store.Store.dto.RegisterDto;
 import com.store.Store.models.*;
 import com.store.Store.repositories.AppUserRepository;
 import com.store.Store.repositories.RoleRepository;
