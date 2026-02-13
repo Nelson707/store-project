@@ -1,7 +1,9 @@
-package com.store.Store.models;
+package com.store.Store.dto;
 
 import jakarta.validation.constraints.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.math.BigDecimal;
 
 public class ProductDto {
     @NotEmpty(message = "Tne name is required")
@@ -46,11 +48,11 @@ public class ProductDto {
         this.stockQuantity = stockQuantity;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
@@ -71,7 +73,7 @@ public class ProductDto {
     }
 
     @Min(0)
-    private double price;
+    private BigDecimal price;
 
     private String description;
 

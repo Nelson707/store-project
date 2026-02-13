@@ -1,7 +1,7 @@
 package com.store.Store.controllers.api;
 
 import com.store.Store.models.Category;
-import com.store.Store.models.CategoryDto;
+import com.store.Store.dto.CategoryDto;
 import com.store.Store.repositories.CategoryRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

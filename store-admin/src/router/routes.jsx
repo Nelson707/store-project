@@ -11,6 +11,7 @@ import Users from "../components/users/users";
 import POSHome from "../components/pos/posHome";
 import Analytics from "../components/analytics/analytics";
 import Settings from "../components/settings/settings";
+import Sales from "../components/pos/sales";
 
 
 
@@ -62,5 +63,9 @@ export const router = createBrowserRouter([
     {
         path: "/settings",
         element: <Settings />,
+    },
+     {
+        path: "/sales",
+        element: <Sales />,
     },
 ]);

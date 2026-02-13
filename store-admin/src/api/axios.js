@@ -45,9 +45,9 @@ api.interceptors.response.use(
     }
 
     // Unauthorized / forbidden
-    if (status === 401 || status === 403) {
-      toast.error("You are not authorized to perform this action");
-    }
+    // if (status === 401 || status === 403) {
+    //   toast.error("You are not authorized to perform this action");
+    // }
 
     // Fallback
     if (status >= 500) {

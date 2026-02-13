@@ -2,7 +2,7 @@ package com.store.Store.controllers.api;
 
 import com.store.Store.models.Category;
 import com.store.Store.models.Product;
-import com.store.Store.models.ProductDto;
+import com.store.Store.dto.ProductDto;
 import com.store.Store.repositories.CategoryRepository;
 import com.store.Store.repositories.ProductsRepository;
 import jakarta.validation.Valid;
@@ -21,9 +21,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
-//@CrossOrigin(origins = "http://localhost:5173",
-//        allowedHeaders = "*",
-//        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
 public class ProductApiController {
 
     private final ProductsRepository productRepo;
@@ -45,7 +42,7 @@ public class ProductApiController {
 
     // GET ONE PRODUCT
     @GetMapping("/{id}")
-    public Product getOne(@PathVariable int id) {
+    public Product getOne(@PathVariable Long id) {
         return productRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
@@ -77,7 +74,7 @@ public class ProductApiController {
     // UPDATE
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> update(
-            @PathVariable int id,
+            @PathVariable Long id,
             @Valid @ModelAttribute ProductDto dto
     ) {
         Product product = productRepo.findById(id)
@@ -104,7 +101,7 @@ public class ProductApiController {
 
     // DELETE
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable int id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         Product product = productRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
