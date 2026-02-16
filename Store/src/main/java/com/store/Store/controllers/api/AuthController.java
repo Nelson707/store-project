@@ -6,7 +6,9 @@ import com.store.Store.dto.RegisterDto;
 import com.store.Store.models.*;
 import com.store.Store.repositories.AppUserRepository;
 import com.store.Store.repositories.RoleRepository;
+import com.store.Store.security.JwtUtil;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,6 +31,9 @@ public class AuthController {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     public AuthController(
             AppUserRepository userRepository,
@@ -92,9 +97,10 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // Get logged-in user email
-        String email = authentication.getName();
+        // Generate JWT token
+        String token = jwtUtil.generateToken(dto.getEmail());
 
+        String email = authentication.getName();
         AppUser user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -105,8 +111,9 @@ public class AuthController {
                 user.getPhoneNumber(),
                 user.getRoles()
                         .stream()
-                        .map(role -> role.getName())
-                        .collect(Collectors.toSet())
+                        .map(Role::getName)
+                        .collect(Collectors.toSet()),
+                token  // Include JWT token in response
         );
 
         return ResponseEntity.ok(response);

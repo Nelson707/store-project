@@ -3,10 +3,12 @@ import { RouterProvider } from "react-router-dom";
 import { router } from "./router/routes.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { CartProvider } from "./context/CartContext.jsx";
 
 function App() {
   return (
     <>
+      <CartProvider>
       <RouterProvider router={router} />
       <ToastContainer
         position="top-right"
@@ -17,6 +19,7 @@ function App() {
         pauseOnHover
         theme="light"
       />
+      </CartProvider>
     </>
   );
 }

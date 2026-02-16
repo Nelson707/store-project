@@ -1,14 +1,52 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import api from '../../api/axios';
 
 const Sidebar = ({ collapsed, onToggle }) => {
     const location = useLocation();
+    const navigate = useNavigate();
+    const [expandedMenus, setExpandedMenus] = useState({});
+    const [user, setUser] = useState('');
+
+    const toggleSubmenu = (id) => {
+        setExpandedMenus(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
+
+    const handleLogout = async () => {
+        try {
+            await api.post("/auth/logout"); // POST request to Spring Security
+            toast.success("Logged out successfully", "success");
+            navigate("/"); // redirect to login page
+        } catch (error) {
+            toast.error("Failed to logout", "error");
+            console.error(error);
+        }
+    };
+
+    const getCurrentUser = async () => {
+        try {
+            const response = await api.get("/auth/me");
+            console.log("User data:", response.data);
+            setUser(response.data);
+        } catch (error) {
+            console.error("Failed to fetch user:", error);
+            return null;
+        }
+    };
+
+    useEffect(()=> {
+        getCurrentUser()
+    }, [])
 
     const menuItems = [
         {
             id: 'dashboard',
             name: 'Dashboard',
-            path: '/',
+            path: '/dashboard',
             icon: (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -71,9 +109,13 @@ const Sidebar = ({ collapsed, onToggle }) => {
             path: '/pos',
             icon: (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}  d="M3 7h18M3 10h18M5 16h4m10 4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2z"  />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 10h18M5 16h4m10 4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2z" />
                 </svg>
-            )
+            ),
+            subItems: [
+                { id: 'pos-home', name: 'Home', path: '/pos' },
+                { id: 'pos-sales', name: 'Sales', path: '/pos/sales' },
+            ]
         },
         {
             id: 'settings',
@@ -111,21 +153,71 @@ const Sidebar = ({ collapsed, onToggle }) => {
             <nav className="flex-1 px-3 py-4 space-y-1">
                 {menuItems.map((item) => {
                     const isActive = location.pathname === item.path;
+                    const hasSubItems = item.subItems && item.subItems.length > 0;
+                    const isExpanded = expandedMenus[item.id] || (hasSubItems && item.subItems.some(subItem => location.pathname === subItem.path));
 
                     return (
-                        <Link
-                            key={item.id}
-                            to={item.path}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition ${isActive
-                                ? "bg-blue-50 text-blue-600"
-                                : "text-gray-700 hover:bg-gray-100"
-                                }`}
-                        >
-                            {item.icon}
-                            {!collapsed && (
-                                <span className="font-medium">{item.name}</span>
+                        <div key={item.id}>
+                            {hasSubItems ? (
+                                <button
+                                    onClick={() => toggleSubmenu(item.id)}
+                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition ${location.pathname.startsWith(item.path)
+                                        ? "bg-blue-50 text-blue-600"
+                                        : "text-gray-700 hover:bg-gray-100"
+                                        }`}
+                                >
+                                    {item.icon}
+                                    {!collapsed && (
+                                        <>
+                                            <span className="font-medium flex-1 text-left">{item.name}</span>
+                                            <svg
+                                                className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </>
+                                    )}
+                                </button>
+                            ) : (
+                                <Link
+                                    to={item.path}
+                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition ${isActive
+                                        ? "bg-blue-50 text-blue-600"
+                                        : "text-gray-700 hover:bg-gray-100"
+                                        }`}
+                                >
+                                    {item.icon}
+                                    {!collapsed && (
+                                        <span className="font-medium">{item.name}</span>
+                                    )}
+                                </Link>
                             )}
-                        </Link>
+
+                            {/* Submenu */}
+                            {hasSubItems && !collapsed && isExpanded && (
+                                <div className="ml-8 mt-1 space-y-1">
+                                    {item.subItems.map((subItem) => {
+                                        const isSubActive = location.pathname === subItem.path;
+                                        return (
+                                            <Link
+                                                key={subItem.id}
+                                                to={subItem.path}
+                                                onClick={(e) => e.stopPropagation()}
+                                                className={`block px-3 py-2 rounded-lg text-sm transition ${isSubActive
+                                                    ? "bg-blue-50 text-blue-600 font-medium"
+                                                    : "text-gray-600 hover:bg-gray-100"
+                                                    }`}
+                                            >
+                                                {subItem.name}
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
                     );
                 })}
             </nav>
@@ -138,8 +230,14 @@ const Sidebar = ({ collapsed, onToggle }) => {
                     </div>
                     {!collapsed && (
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">Nelson Spring</p>
-                            <p className="text-xs text-gray-500 truncate">admin@shop.com</p>
+                            <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
+                            <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                            <button
+                                onClick={handleLogout}
+                                className="text-xs text-blue-600 hover:underline"
+                            >
+                                Logout
+                            </button>
                         </div>
                     )}
                 </div>

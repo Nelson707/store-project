@@ -1,4 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
+import AdminLogin from "../authentication/login";
 import CategoryList from "../components/categories/CategoryList";
 import AddCategory from "../components/categories/AddCategory";
 import Dashboard from "../components/dashboard/dashboard";
@@ -18,6 +19,10 @@ import Sales from "../components/pos/sales";
 export const router = createBrowserRouter([
     {
         path: "/",
+        element: <AdminLogin />,
+    },
+    {
+        path: "/dashboard",
         element: <Dashboard />,
     },
     {
@@ -65,7 +70,7 @@ export const router = createBrowserRouter([
         element: <Settings />,
     },
      {
-        path: "/sales",
+        path: "/pos/sales",
         element: <Sales />,
     },
 ]);
