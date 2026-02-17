@@ -120,6 +120,14 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        // JWT is stateless — no server-side session to invalidate.
+        // The client is responsible for discarding the token.
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
+    }
+
     @GetMapping("/me")
     public ResponseEntity<?> me(Authentication authentication) {
 

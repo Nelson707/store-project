@@ -19,6 +19,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
     const handleLogout = async () => {
         try {
             await api.post("/auth/logout"); // POST request to Spring Security
+            localStorage.removeItem("user");
             toast.success("Logged out successfully", "success");
             navigate("/"); // redirect to login page
         } catch (error) {
@@ -38,7 +39,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
         }
     };
 
-    useEffect(()=> {
+    useEffect(() => {
         getCurrentUser()
     }, [])
 

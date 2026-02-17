@@ -20,9 +20,14 @@ export default function Login() {
 
     try {
       const response = await api.post("/auth/login", form);
+      console.log("user response", response);
 
       if (response.status === 200) {
+        const userData = response.data;
+
         toastify("Login successful", "success");
+        // Store user data with JWT token
+        localStorage.setItem("user", JSON.stringify(userData));
         navigate("/home");
       }
     } catch (error) {
