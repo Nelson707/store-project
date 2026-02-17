@@ -121,8 +121,8 @@ api.interceptors.response.use(
     if (status === 401 || status === 403) {
       toast.error("You are not authorized to perform this action");
       // Optional: Clear user data and redirect to login
-      localStorage.removeItem("user");
-      window.location.href = "/";
+      // localStorage.removeItem("user");
+      // window.location.href = "/";
     }
 
     // Not found

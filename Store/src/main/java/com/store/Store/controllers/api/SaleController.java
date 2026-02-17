@@ -8,10 +8,12 @@ import com.store.Store.repositories.SaleRepository;
 import com.store.Store.services.SaleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,4 +118,62 @@ public class SaleController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/week")
+    public ResponseEntity<?> getThisWeekSales() {
+        List<Sale> weekSales = saleService.getThisWeekSales();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("sales", weekSales);
+        response.put("count", weekSales.size());
+        response.put("totalRevenue", saleService.calculateTotalRevenue(weekSales));
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/month")
+    public ResponseEntity<?> getThisMonthSales() {
+        List<Sale> monthSales = saleService.getThisMonthSales();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("sales", monthSales);
+        response.put("count", monthSales.size());
+        response.put("totalRevenue", saleService.calculateTotalRevenue(monthSales));
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/range")
+    public ResponseEntity<?> getSalesByRange(
+            @RequestParam("start")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+
+            @RequestParam("end")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
+    ) {
+        try {
+
+            List<Sale> sales = saleService.getSalesByDateRange(start, end);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("sales", sales);
+            response.put("count", sales.size());
+            response.put("totalRevenue", saleService.calculateTotalRevenue(sales));
+            response.put("startDate", start);
+            response.put("endDate", end);
+
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", e.getMessage());
+
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+
+
 }

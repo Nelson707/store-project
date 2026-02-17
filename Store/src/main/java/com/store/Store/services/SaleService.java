@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -122,6 +123,58 @@ public class SaleService {
         LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
         return saleRepository.findByCreatedAtBetween(startOfDay, endOfDay);
     }
+
+    /**
+     * Weekly sales
+     */
+    public List<Sale> getThisWeekSales() {
+        LocalDate today = LocalDate.now();
+
+        LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
+        LocalDate endOfWeek = today.with(DayOfWeek.SUNDAY);
+
+        LocalDateTime startDateTime = startOfWeek.atStartOfDay();
+        LocalDateTime endDateTime = endOfWeek.atTime(LocalTime.MAX);
+
+        return saleRepository.findByCreatedAtBetween(startDateTime, endDateTime);
+    }
+
+    /**
+     * Monthly sales
+     */
+    public List<Sale> getThisMonthSales() {
+        LocalDate today = LocalDate.now();
+
+        LocalDate startOfMonth = today.withDayOfMonth(1);
+        LocalDate endOfMonth = today.withDayOfMonth(today.lengthOfMonth());
+
+        LocalDateTime startDateTime = startOfMonth.atStartOfDay();
+        LocalDateTime endDateTime = endOfMonth.atTime(LocalTime.MAX);
+
+        return saleRepository.findByCreatedAtBetween(startDateTime, endDateTime);
+    }
+
+    /**
+     * Custom range sales
+     */
+    public List<Sale> getSalesByDateRange(LocalDate startDate, LocalDate endDate) {
+
+        if (startDate == null || endDate == null) {
+            throw new IllegalArgumentException("Start and end dates are required");
+        }
+
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Start date cannot be after end date");
+        }
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+
+        return saleRepository.findByCreatedAtBetween(startDateTime, endDateTime);
+    }
+
+
+
 
     /**
      * Calculate total revenue from a list of sales

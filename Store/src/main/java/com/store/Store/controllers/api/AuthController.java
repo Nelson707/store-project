@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -142,6 +143,26 @@ public class AuthController {
         );
     }
 
+    @GetMapping("/users")
+    public ResponseEntity<?> getAllUsers() {
+        List<AppUser> users = userRepository.findAll();
 
+        List<Map<String, Object>> userList = users.stream()
+                .map(user -> Map.of(
+                        "id", user.getId(),
+                        "name", user.getName(),
+                        "email", user.getEmail(),
+                        "phoneNumber", user.getPhoneNumber(),
+                        "enabled", user.isEnabled(),
+//                        "created_at", user.getCreatedAt(),
+                        "roles", user.getRoles()
+                                .stream()
+                                .map(role -> role.getName())
+                                .collect(Collectors.toSet())
+                ))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(userList);
+    }
 
 }

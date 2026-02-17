@@ -27,7 +27,7 @@ const Sales = () => {
     const [loading, setLoading] = useState(true);
     const [selectedSale, setSelectedSale] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
-    const [dateFilter, setDateFilter] = useState('today'); // today, week, month, custom
+    const [dateFilter, setDateFilter] = useState('all');
     const [customDateRange, setCustomDateRange] = useState({
         startDate: '',
         endDate: ''
@@ -56,13 +56,16 @@ const Sales = () => {
             let url = '/sales';
 
             // Add date filter to URL
-            if (dateFilter === 'today') {
+            if (dateFilter === 'All') {
+                url = '/sales/';
+            } 
+            else if (dateFilter === 'today') {
                 url = '/sales/today';
-            } else if (dateFilter === 'week') {
-                // You might need to create this endpoint
+            }
+            else if (dateFilter === 'week') {
                 url = '/sales/week';
-            } else if (dateFilter === 'month') {
-                // You might need to create this endpoint
+            }
+            else if (dateFilter === 'month') {
                 url = '/sales/month';
             } else if (dateFilter === 'custom' && customDateRange.startDate && customDateRange.endDate) {
                 url = `/sales/range?start=${customDateRange.startDate}&end=${customDateRange.endDate}`;
@@ -239,7 +242,7 @@ const Sales = () => {
     };
 
     return (
-        <Layout>
+        <Layout title="POS Sales" subtitle="POS sales transactions">
             <div className="min-h-screen bg-gray-50">
                 {/* Header */}
                 <div className="bg-white border-b border-gray-200 px-6 py-4">
@@ -346,6 +349,7 @@ const Sales = () => {
                                 onChange={(e) => setDateFilter(e.target.value)}
                                 className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             >
+                                <option value="all">All</option>
                                 <option value="today">Today</option>
                                 <option value="week">This Week</option>
                                 <option value="month">This Month</option>
