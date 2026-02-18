@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 
 const POSHome = () => {
+  const [user, setUser] = useState(null)
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const { cart, addToCart, removeFromCart, updateQuantity, clearCart, subtotal, total } = useCart()
@@ -33,6 +34,7 @@ const POSHome = () => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   const [saleResult, setSaleResult] = useState(null)
+  // const [loading, setLoading] = useState(true)
 
   const filteredProducts = products.filter(product => {
     const matchesCategory =
@@ -44,6 +46,20 @@ const POSHome = () => {
 
     return matchesCategory && matchesSearch
   })
+
+  const getCurrentUser = async () => {
+    try {
+      const response = await api.get("/auth/me");
+      console.log("User data home:", response.data);
+      setUser(response.data);
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+      return null;
+    }
+  };
+
+  const getInitials = (name = '') =>
+    name.split(' ').map(n => n[0]).join('').toUpperCase()
 
   const fetchProducts = () => {
     api.get("/products")
@@ -122,6 +138,7 @@ const POSHome = () => {
   }
 
   useEffect(() => {
+    getCurrentUser()
     fetchProducts()
     fetchCategories()
   }, [])
@@ -151,10 +168,10 @@ const POSHome = () => {
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <p className="text-xs text-gray-500">Cashier</p>
-                  <p className="text-sm font-medium text-gray-900">John Doe</p>
+                  <p className="text-sm font-medium text-gray-900">{user?.name}</p>
                 </div>
                 <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                  <span className="text-sm font-semibold text-white">JD</span>
+                  <span className="text-sm font-semibold text-white">{getInitials(user?.name)}</span>
                 </div>
               </div>
 
@@ -171,9 +188,7 @@ const POSHome = () => {
                 )}
               </button>
 
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <LogOut className="w-5 h-5 text-gray-600" />
-              </button>
+              
             </div>
           </div>
         </div>

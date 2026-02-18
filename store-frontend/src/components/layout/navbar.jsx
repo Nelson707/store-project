@@ -7,6 +7,7 @@ const Navbar = ({ collapsed, onToggle }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const handleLogout = async () => {
         try {
@@ -28,6 +29,8 @@ const Navbar = ({ collapsed, onToggle }) => {
         } catch (error) {
             console.error("Failed to fetch user:", error);
             return null;
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -63,16 +66,6 @@ const Navbar = ({ collapsed, onToggle }) => {
             icon: (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-            )
-        },
-        {
-            id: 'analytics',
-            name: 'Analytics',
-            path: '/analytics',
-            icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
             )
         },
@@ -139,8 +132,19 @@ const Navbar = ({ collapsed, onToggle }) => {
                     </div>
                     {!collapsed && (
                         <div className="flex-1 min-w-0">
-                            {/* <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
-                            <p className="text-xs text-gray-500 truncate">{user.email}</p> */}
+                            {loading ? (
+                                <p>Loading...</p>
+                            ) : (
+                                <>
+                                    <p className="text-sm font-medium text-gray-900 truncate">
+                                        {user?.name}
+                                    </p>
+                                    <p className="text-xs text-gray-500 truncate">
+                                        {user?.email}
+                                    </p>
+                                </>
+                            )}
+
                             <button
                                 onClick={handleLogout}
                                 className="text-xs text-blue-600 hover:underline"
