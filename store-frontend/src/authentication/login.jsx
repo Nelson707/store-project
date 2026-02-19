@@ -25,6 +25,12 @@ export default function Login() {
       if (response.status === 200) {
         const userData = response.data;
 
+        // Check if user has ADMIN role
+        if (!userData.roles.includes("USER")) {
+          toastify("Access denied. User privileges required.", "error");
+          return;
+        }
+
         toastify("Login successful", "success");
         // Store user data with JWT token
         localStorage.setItem("user", JSON.stringify(userData));

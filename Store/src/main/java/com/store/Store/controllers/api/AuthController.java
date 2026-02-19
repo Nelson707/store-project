@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -84,6 +85,29 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body("User registered successfully");
+    }
+
+    @PostMapping("/users/create-admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> createAdminUser(@RequestBody Map<String, String> body) {
+        if (userRepository.findByEmail(body.get("email")).isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already registered");
+        }
+
+        Role adminRole = roleRepository.findByName(Role.ADMIN)
+                .orElseThrow(() -> new RuntimeException("Admin role not found"));
+
+        AppUser user = new AppUser();
+        user.setName(body.get("name"));
+        user.setEmail(body.get("email"));
+        user.setPhoneNumber(body.get("phoneNumber"));
+        user.setPassword(passwordEncoder.encode(body.get("password")));
+        user.setRoles(Collections.singleton(adminRole));
+        user.setEnabled(true);
+
+        userRepository.save(user);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body("Admin user created successfully");
     }
 
     @PostMapping("/login")
@@ -172,5 +196,149 @@ public class AuthController {
 
         return ResponseEntity.ok(userList);
     }
+
+    /**
+     * ENDPOINT 1: Get all admin users
+     * Access: Only accessible by ADMIN users
+     */
+    @GetMapping("/users/admins")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getAdminUsers() {
+        // Find the ADMIN role
+        Role adminRole = roleRepository.findByName(Role.ADMIN)
+                .orElseThrow(() -> new RuntimeException("Admin role not found"));
+
+        // Get all users with ADMIN role
+        List<AppUser> adminUsers = userRepository.findAll().stream()
+                .filter(user -> user.getRoles().contains(adminRole))
+                .collect(Collectors.toList());
+
+        List<Map<String, Object>> adminList = adminUsers.stream()
+                .map(user -> Map.of(
+                        "id", user.getId(),
+                        "name", user.getName(),
+                        "email", user.getEmail(),
+                        "phoneNumber", user.getPhoneNumber(),
+                        "enabled", user.isEnabled(),
+                        "roles", user.getRoles()
+                                .stream()
+                                .map(Role::getName)
+                                .collect(Collectors.toSet())
+                ))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(Map.of(
+                "totalAdmins", adminList.size(),
+                "admins", adminList
+        ));
+    }
+
+    /**
+     * ENDPOINT 2: Get all regular users (non-admin)
+     * Access: Only accessible by ADMIN users
+     */
+    @GetMapping("/users/regular")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getRegularUsers() {
+        // Find the ADMIN role
+        Role adminRole = roleRepository.findByName(Role.ADMIN)
+                .orElseThrow(() -> new RuntimeException("Admin role not found"));
+
+        // Get all users without ADMIN role (only USER role)
+        List<AppUser> regularUsers = userRepository.findAll().stream()
+                .filter(user -> !user.getRoles().contains(adminRole))
+                .collect(Collectors.toList());
+
+        List<Map<String, Object>> regularList = regularUsers.stream()
+                .map(user -> Map.of(
+                        "id", user.getId(),
+                        "name", user.getName(),
+                        "email", user.getEmail(),
+                        "phoneNumber", user.getPhoneNumber(),
+                        "enabled", user.isEnabled(),
+                        "roles", user.getRoles()
+                                .stream()
+                                .map(Role::getName)
+                                .collect(Collectors.toSet())
+                ))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(Map.of(
+                "totalRegularUsers", regularList.size(),
+                "users", regularList
+        ));
+    }
+
+    // Edit user
+    @PutMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody Map<String, String> updates) {
+        AppUser user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (updates.containsKey("name")) user.setName(updates.get("name"));
+        if (updates.containsKey("email")) user.setEmail(updates.get("email"));
+        if (updates.containsKey("phoneNumber")) user.setPhoneNumber(updates.get("phoneNumber"));
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "User updated successfully",
+                "user", Map.of(
+                        "id", user.getId(),
+                        "name", user.getName(),
+                        "email", user.getEmail(),
+                        "phoneNumber", user.getPhoneNumber()
+                )
+        ));
+    }
+
+    // Update own profile
+    @PutMapping("/me/update")
+    public ResponseEntity<?> updateProfile(@RequestBody Map<String, String> updates, Authentication authentication) {
+        AppUser user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (updates.containsKey("name")) user.setName(updates.get("name"));
+        if (updates.containsKey("email")) user.setEmail(updates.get("email"));
+        if (updates.containsKey("phoneNumber")) user.setPhoneNumber(updates.get("phoneNumber"));
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "Profile updated successfully"));
+    }
+
+    // Change own password
+    @PutMapping("/me/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> body, Authentication authentication) {
+        AppUser user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(body.get("currentPassword"), user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Current password is incorrect");
+        }
+
+        if (!body.get("newPassword").equals(body.get("confirmPassword"))) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Passwords do not match");
+        }
+
+        user.setPassword(passwordEncoder.encode(body.get("newPassword")));
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
+    }
+
+    // Delete user
+    @DeleteMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        AppUser user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        userRepository.delete(user);
+
+        return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
+    }
+
 
 }

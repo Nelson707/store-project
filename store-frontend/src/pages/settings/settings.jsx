@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../../components/layout/layout';
 import api from '../../api/axios';
+import { toastify } from '../../utils/toast';
 
 const Settings = () => {
+    const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('profile');
@@ -56,40 +59,46 @@ const Settings = () => {
     const handleProfileUpdate = async (e) => {
         e.preventDefault();
         try {
-            // Add your API call here to update profile
-            // await api.put('/user/profile', formData);
-            showNotification('success', 'Profile updated successfully');
+            await api.put("/auth/me/update", {
+                name: formData.name,
+                email: formData.email,
+                phoneNumber: formData.phoneNumber,
+            });
+            toastify("Profile updated successfully", "success");
             setIsEditing(false);
-            // Refresh user data
-            await getCurrentUser();
+            localStorage.clear();
+            navigate('/')
+            // // Update localStorage so navbar/header reflects new name
+            // const stored = JSON.parse(localStorage.getItem("user"));
+            // localStorage.setItem("user", JSON.stringify({
+            //     ...stored,
+            //     name: formData.name,
+            //     email: formData.email,
+            //     phoneNumber: formData.phoneNumber,
+            // }));
         } catch (error) {
-            showNotification('error', 'Failed to update profile');
+            toastify("Failed to update profile:", error);
         }
     };
 
     const handlePasswordChange = async (e) => {
         e.preventDefault();
-        
-        if (formData.newPassword !== formData.confirmPassword) {
-            showNotification('error', 'New passwords do not match');
-            return;
-        }
-
         try {
-            // Add your API call here to change password
-            // await api.post('/auth/change-password', {
-            //     currentPassword: formData.currentPassword,
-            //     newPassword: formData.newPassword
-            // });
-            showNotification('success', 'Password changed successfully');
+            await api.put("/auth/me/change-password", {
+                currentPassword: formData.currentPassword,
+                newPassword: formData.newPassword,
+                confirmPassword: formData.confirmPassword,
+            });
+            toastify("Password changed successfully", "success");
+            // Clear password fields
             setFormData(prev => ({
                 ...prev,
-                currentPassword: '',
-                newPassword: '',
-                confirmPassword: ''
+                currentPassword: "",
+                newPassword: "",
+                confirmPassword: "",
             }));
         } catch (error) {
-            showNotification('error', 'Failed to change password');
+            toastify("Failed to change password:", error);
         }
     };
 
@@ -113,10 +122,9 @@ const Settings = () => {
         <Layout title="Settings" subtitle="Manage your account settings">
             {/* Notification Toast */}
             {notification.show && (
-                <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-500 ${
-                    notification.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 
-                    'bg-red-50 text-red-800 border border-red-200'
-                }`}>
+                <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-500 ${notification.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' :
+                        'bg-red-50 text-red-800 border border-red-200'
+                    }`}>
                     <div className="flex items-center">
                         <span className="mr-2">{notification.type === 'success' ? '✅' : '❌'}</span>
                         <span>{notification.message}</span>
@@ -151,11 +159,10 @@ const Settings = () => {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`py-4 px-1 inline-flex items-center space-x-2 border-b-2 font-medium text-sm transition-colors ${
-                                    activeTab === tab.id
+                                className={`py-4 px-1 inline-flex items-center space-x-2 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
                                         ? 'border-blue-500 text-blue-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                }`}
+                                    }`}
                             >
                                 <span>{tab.icon}</span>
                                 <span>{tab.name}</span>
@@ -268,7 +275,7 @@ const Settings = () => {
                     {activeTab === 'security' && (
                         <div>
                             <h3 className="text-lg font-semibold text-gray-900 mb-6">Security Settings</h3>
-                            <form onSubmit={handlePasswordChange} className="max-w-md space-y-6">
+                            <form onSubmit={handlePasswordChange} className="max-w-md space-y-6" autoComplete='off'>
                                 <div>
                                     <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
                                         Current Password
@@ -277,6 +284,7 @@ const Settings = () => {
                                         type="password"
                                         id="currentPassword"
                                         name="currentPassword"
+                                        autoComplete="new-password" 
                                         value={formData.currentPassword}
                                         onChange={handleInputChange}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -291,6 +299,7 @@ const Settings = () => {
                                         type="password"
                                         id="newPassword"
                                         name="newPassword"
+                                        autoComplete="new-password" 
                                         value={formData.newPassword}
                                         onChange={handleInputChange}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -306,6 +315,7 @@ const Settings = () => {
                                         type="password"
                                         id="confirmPassword"
                                         name="confirmPassword"
+                                        autoComplete="new-password" 
                                         value={formData.confirmPassword}
                                         onChange={handleInputChange}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

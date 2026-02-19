@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Layout from '../component/layout'
 import api from '../../api/axios'
+import { toast } from 'react-toastify'
 import {
   Users as UsersIcon,
   Shield,
@@ -35,6 +36,12 @@ const SystemUsers = () => {
   const [showFilters, setShowFilters] = useState(false)
   const [error, setError] = useState(null)
   const [userTypeFilter, setUserTypeFilter] = useState('all')
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [editForm, setEditForm] = useState({ name: "", email: "", phoneNumber: "" });
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [addForm, setAddForm] = useState({ name: "", email: "", phoneNumber: "", password: "", confirmPassword: "" });
+  const [addError, setAddError] = useState(null);
 
   const usersPerPage = 10
 
@@ -52,6 +59,60 @@ const SystemUsers = () => {
       setLoading(false)
     }
   }
+
+  const handleEdit = async () => {
+    try {
+      await api.put(`/auth/users/${selectedUser.id}`, editForm);
+      toast.success("User updated successfully");
+      closeEditModal();
+      getUsers();
+    } catch (error) {
+      console.error("Failed to update user:", error);
+    }
+  };
+
+  const handleDelete = async (userId) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    try {
+      await api.delete(`/auth/users/${userId}`);
+      toast.success("User deleted successfully");
+      getUsers(); // refresh list
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+    }
+  };
+
+  const openEditModal = (user) => {
+    setSelectedUser(user);
+    setEditForm({
+      name: user.name,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+    });
+    setEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setEditModalOpen(false);
+    setSelectedUser(null);
+  };
+
+  const handleAddAdmin = async () => {
+    setAddError(null);
+    if (addForm.password !== addForm.confirmPassword) {
+      setAddError("Passwords do not match");
+      return;
+    }
+    try {
+      await api.post("/auth/users/create-admin", addForm);
+      toast.success("Admin user created successfully");
+      setAddModalOpen(false);
+      setAddForm({ name: "", email: "", phoneNumber: "", password: "", confirmPassword: "" });
+      getUsers();
+    } catch (error) {
+      toast.error("Failed to create admin user", error);
+    }
+  };
 
   useEffect(() => {
     getUsers()
@@ -145,8 +206,8 @@ const SystemUsers = () => {
             <button
               onClick={() => setUserTypeFilter('all')}
               className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${userTypeFilter === 'all'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
             >
               <Users className="h-5 w-5 mr-2" />
@@ -155,8 +216,8 @@ const SystemUsers = () => {
             <button
               onClick={() => setUserTypeFilter('admin')}
               className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${userTypeFilter === 'admin'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
             >
               <Shield className="h-5 w-5 mr-2" />
@@ -165,8 +226,8 @@ const SystemUsers = () => {
             <button
               onClick={() => setUserTypeFilter('regular')}
               className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${userTypeFilter === 'regular'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
             >
               <UserCircle className="h-5 w-5 mr-2" />
@@ -194,8 +255,8 @@ const SystemUsers = () => {
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className={`p-2 border rounded-lg transition-colors ${showFilters
-                    ? 'border-blue-500 bg-blue-50 text-blue-600'
-                    : 'border-gray-300 text-gray-600 hover:bg-gray-50'
+                  ? 'border-blue-500 bg-blue-50 text-blue-600'
+                  : 'border-gray-300 text-gray-600 hover:bg-gray-50'
                   }`}
               >
                 <Filter className="h-5 w-5" />
@@ -209,7 +270,10 @@ const SystemUsers = () => {
               </button>
             </div>
           </div>
-          <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+          <button
+            onClick={() => setAddModalOpen(true)}
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          >
             <UserPlus className="h-5 w-5 mr-2" />
             Add User
           </button>
@@ -418,9 +482,9 @@ const SystemUsers = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end space-x-3">
                             <button className="text-blue-600 hover:text-blue-900 transition-colors">
-                              <Edit className="h-5 w-5" />
+                              <Edit className="h-5 w-5" onClick={() => openEditModal(user)} />
                             </button>
-                            <button className="text-red-600 hover:text-red-900 transition-colors">
+                            <button className="text-red-600 hover:text-red-900 transition-colors" onClick={() => handleDelete(user.id)}>
                               <Trash2 className="h-5 w-5" />
                             </button>
                             <button className="text-gray-400 hover:text-gray-600 transition-colors">
@@ -478,8 +542,8 @@ const SystemUsers = () => {
                             key={i + 1}
                             onClick={() => setCurrentPage(i + 1)}
                             className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === i + 1
-                                ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                              ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                              : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                               }`}
                           >
                             {i + 1}
@@ -502,6 +566,152 @@ const SystemUsers = () => {
           )}
         </div>
       </div>
+
+
+
+
+      {/* Edit user modal */}
+      {editModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Edit User</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <input
+                  type="text"
+                  value={editForm.phoneNumber}
+                  onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value })}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={closeEditModal}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEdit}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      {addModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6" autoComplete="off">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Add Admin User</h2>
+
+            {addError && (
+              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-4">
+                {addError}
+              </p>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input
+                  type="text"
+                  value={addForm.name}
+                  onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  autoComplete="off"
+                  value={addForm.email}
+                  onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <input
+                  type="text"
+                  value={addForm.phoneNumber}
+                  onChange={(e) => setAddForm({ ...addForm, phoneNumber: e.target.value })}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input
+                  type="password"
+                  autoComplete="new-password" 
+                  value={addForm.password}
+                  onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                <input
+                  type="password"
+                  value={addForm.confirmPassword}
+                  autoComplete="new-password" 
+                  onChange={(e) => setAddForm({ ...addForm, confirmPassword: e.target.value })}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setAddModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddAdmin}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Create Admin
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
     </Layout>
   )
 }

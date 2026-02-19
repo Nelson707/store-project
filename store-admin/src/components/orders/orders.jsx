@@ -57,7 +57,7 @@ const Orders = () => {
       const response = await api.patch(`/admin/orders/${orderId}/status`, { status: newStatus })
       setOrders(prev => prev.map(o => o.id === orderId ? response.data : o))
       if (selectedOrder?.id === orderId) setSelectedOrder(response.data)
-      toast.s('Order status updated')
+      toast.success('Order status updated')
     } catch (error) {
       console.error(error)
       toast.error('Failed to update status')
