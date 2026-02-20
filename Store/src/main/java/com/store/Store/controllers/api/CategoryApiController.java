@@ -13,7 +13,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/categories")
-//@CrossOrigin(origins = "http://localhost:5173")
 public class CategoryApiController {
     private final CategoryRepository repo;
 

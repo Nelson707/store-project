@@ -50,6 +50,19 @@ const Orders = () => {
         }
     };
 
+    const handleCancelOrder = async (orderId) => {
+        try {
+            const response = await api.patch(`/orders/${orderId}/cancel`)
+            if (response.status === 200) {
+                toastify('Order cancelled successfully', 'success')
+                fetchOrders()
+            }
+        } catch (error) {
+            console.error(error)
+            toastify('Failed to update status')
+        } 
+    }
+
     useEffect(() => {
         fetchOrders();
     }, []);
@@ -281,8 +294,20 @@ const Orders = () => {
                                                 </p>
                                             </div>
                                         </div>
+
                                         <div className="flex items-center space-x-4">
                                             {getStatusBadge(order.status)}
+
+                                            {/* Cancel Button */}
+                                            {order.status !== "CANCELLED" && order.cancellable && (
+                                                <button
+                                                    onClick={() => handleCancelOrder(order.id)}
+                                                    className="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md border border-red-300 text-red-600 hover:bg-red-50 transition"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            )}
+
                                             <button
                                                 onClick={() => viewOrderDetails(order)}
                                                 className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700"

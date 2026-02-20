@@ -71,7 +71,7 @@ export default function Checkout() {
                     <h2 className="text-xl font-semibold text-gray-700 mb-2">Your cart is empty</h2>
                     <p className="text-gray-500 mb-6">Add some products before checking out.</p>
                     <button
-                        onClick={() => navigate("/")}
+                        onClick={() => navigate("/products")}
                         className="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
                     >
                         Shop Now

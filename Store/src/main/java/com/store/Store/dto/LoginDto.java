@@ -11,10 +11,10 @@ import lombok.Setter;
 @NoArgsConstructor
 public class LoginDto {
 
-    @NotEmpty
-    @Email
+    @NotEmpty(message = "Email is required")
+    @Email(message = "Invalid email format")
     private String email;
 
-    @NotEmpty
+    @NotEmpty(message = "Password is required")
     private String password;
 }

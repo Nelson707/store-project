@@ -18,37 +18,22 @@ export default function Register() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     const response = await api.post("/auth/register", form);
-
-  //     if (response.success) {
-  //       toastify("User created successfully", 'success');
-  //       navigate("/home");
-  //     }
-  //   } catch (error) {
-  //     console.error('Error details:', error);
-  //     // toastify(err.response?.data?.message || "Failed to create user", 'error');
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const response = await api.post("/auth/register", form);
+    try {
+      const response = await api.post("/auth/register", form);
 
-    if (response.status === 201) {
-      toastify("User created successfully", "success");
-      navigate("/home");
+      if (response.status === 201) {
+        toastify("User created successfully", "success");
+        localStorage.setItem("user", JSON.stringify(response.data));
+        navigate("/home");
+      }
+    } catch (error) {
+      console.error(error);
+      toastify(error.response?.data || "Failed to create user", "error");
     }
-  } catch (error) {
-    console.error(error);
-    toastify(error.response?.data || "Failed to create user", "error");
-  }
-};
+  };
 
 
 

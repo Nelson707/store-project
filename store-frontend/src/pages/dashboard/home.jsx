@@ -15,7 +15,13 @@ export default function Home() {
         try {
             const response = await api.get("/products");
             if (response.status === 200) {
-                setProducts(response.data.slice(0, 4));
+                // Sort by createdAt (newest first) and take last 10
+                const sortedByDate = [...response.data].sort((a, b) =>
+                    new Date(b.createdAt) - new Date(a.createdAt)
+                );
+
+                const last10Items = sortedByDate.slice(0, 10);
+                setProducts(last10Items);
             }
         } catch (error) {
             console.error(error);
@@ -89,8 +95,8 @@ export default function Home() {
                     <button
                         onClick={() => setActiveCategory("All")}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${activeCategory === "All"
-                                ? "bg-gray-950 text-white shadow-md"
-                                : "bg-white border border-gray-200 text-gray-600 hover:border-gray-400"
+                            ? "bg-gray-950 text-white shadow-md"
+                            : "bg-white border border-gray-200 text-gray-600 hover:border-gray-400"
                             }`}
                     >
                         All
@@ -100,8 +106,8 @@ export default function Home() {
                             key={cat.id}
                             onClick={() => setActiveCategory(cat.name)}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${activeCategory === cat.name
-                                    ? "bg-gray-950 text-white shadow-md"
-                                    : "bg-white border border-gray-200 text-gray-600 hover:border-gray-400"
+                                ? "bg-gray-950 text-white shadow-md"
+                                : "bg-white border border-gray-200 text-gray-600 hover:border-gray-400"
                                 }`}
                         >
                             {cat.name}
@@ -114,9 +120,6 @@ export default function Home() {
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-2xl font-bold text-gray-900">Latest Products</h2>
-                            <p className="text-sm text-gray-500 mt-0.5">
-                                {filtered.length} product{filtered.length !== 1 ? "s" : ""} found
-                            </p>
                         </div>
                     </div>
 

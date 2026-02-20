@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import api from "../../api/axios";
 import { Link } from "react-router-dom";
 import { getCategories, deleteCategory } from "../../api/category";
 import { toast } from "react-toastify";
@@ -83,7 +84,7 @@ const CategoryList = () => {
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-teal-600 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
                   <Grid className="h-5 w-5 text-white" />
                 </div>
                 Categories
@@ -97,7 +98,7 @@ const CategoryList = () => {
 
             <Link
               to="/categories/add"
-              className="px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl hover:from-green-700 hover:to-teal-700 transition-all flex items-center gap-2 shadow-md font-medium"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-green-700 hover:to-teal-700 transition-all flex items-center gap-2 shadow-md font-medium"
             >
               <PlusCircle className="h-5 w-5" />
               Add Category

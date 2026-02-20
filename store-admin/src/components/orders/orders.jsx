@@ -134,7 +134,7 @@ const Orders = () => {
     name.split(' ').map(n => n[0]).join('').toUpperCase()
 
   return (
-    <Layout title="Orders" subtitle="Keep track of all customer orders">
+    <Layout title="Orders" subtitle="Manage and track all customer orders">
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <div className="bg-white border-b border-gray-200">
@@ -143,9 +143,8 @@ const Orders = () => {
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                   <ShoppingBag className="w-6 h-6 text-blue-600" />
-                  Orders
+                  Customer Orders
                 </h1>
-                <p className="text-sm text-gray-600 mt-1">Manage and track all customer orders</p>
               </div>
               <button
                 onClick={fetchOrders}

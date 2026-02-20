@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 
 export default function AdminLogin() {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({
         email: "",
         password: "",
@@ -16,6 +17,7 @@ export default function AdminLogin() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
         try {
             const response = await api.post("/auth/login", form);
@@ -37,6 +39,8 @@ export default function AdminLogin() {
         } catch (error) {
             console.error(error);
             toast.error(error.response?.data || "Failed to login");
+        } finally {
+            setLoading(false);
         }
     };
 

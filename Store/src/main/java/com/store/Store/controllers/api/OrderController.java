@@ -57,4 +57,17 @@ public class OrderController {
         OrderResponse order = orderService.getOrderById(id, userDetails.getUsername());
         return ResponseEntity.ok(order);
     }
+
+    /**
+     * PATCH /api/orders/{id}/cancel
+     * Cancel a specific order (must belong to the authenticated user).
+     */
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<OrderResponse> cancelOrder(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        OrderResponse order = orderService.cancelOrder(id, userDetails.getUsername());
+        return ResponseEntity.ok(order);
+    }
 }

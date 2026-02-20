@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -136,6 +137,58 @@ public class OrderService {
             return ir;
         }).collect(Collectors.toList()));
 
+        boolean withinWindow = LocalDateTime.now().isBefore(order.getCreatedAt().plusHours(24));
+        boolean cancellableStatus = order.getStatus() != Order.OrderStatus.CANCELLED
+                && order.getStatus() != Order.OrderStatus.SHIPPED
+                && order.getStatus() != Order.OrderStatus.DELIVERED;
+        res.setCancellable(withinWindow && cancellableStatus);
+
         return res;
+    }
+
+    // ── Cancel Order ───────────────────────────────────────────────────────────
+
+    @Transactional
+    public OrderResponse cancelOrder(Long id, String userEmail) {
+        AppUser user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + userEmail));
+
+        Order order = orderRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new NoSuchElementException("Order not found"));
+
+        if (order.getStatus() == Order.OrderStatus.CANCELLED) {
+            throw new IllegalStateException("Order is already cancelled");
+        }
+
+        if (order.getStatus() == Order.OrderStatus.SHIPPED ||
+                order.getStatus() == Order.OrderStatus.DELIVERED) {
+            throw new IllegalStateException(
+                    "Cannot cancel an order that has already been " +
+                            order.getStatus().toString().toLowerCase());
+        }
+
+        if (order.getStatus() == Order.OrderStatus.SHIPPED ||
+                order.getStatus() == Order.OrderStatus.DELIVERED) {
+            throw new IllegalStateException(
+                    "Cannot cancel an order that has already been " +
+                            order.getStatus().toString().toLowerCase());
+        }
+
+        LocalDateTime cutoff = order.getCreatedAt().plusHours(24);
+        if (LocalDateTime.now().isAfter(cutoff)) {
+            throw new IllegalStateException(
+                    "Cancellation window has expired. Orders can only be cancelled within 24 hours of placement");
+        }
+
+        // Restore stock for each item
+        for (OrderItem item : order.getItems()) {
+            productRepository.findById(item.getProductId()).ifPresent(product -> {
+                product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
+                productRepository.save(product);
+            });
+        }
+
+        order.setStatus(Order.OrderStatus.CANCELLED);
+        return mapToResponse(orderRepository.save(order));
     }
 }

@@ -158,7 +158,7 @@ export default function Products() {
                             }
                             {searchQuery && ` • Search: "${searchQuery}"`}
                             <span className="ml-2 text-sm font-medium text-blue-600">
-                                ({searchResultsCount} result{searchResultsCount !== 1 ? 's' : ''})
+                                ({searchResultsCount} product{searchResultsCount !== 1 ? 's' : ''})
                             </span>
                         </p>
                     </div>
@@ -285,7 +285,6 @@ export default function Products() {
                     <div className="flex items-center gap-2 mb-3">
                         <Grid className="h-5 w-5 text-gray-600" />
                         <h3 className="text-sm font-medium text-gray-700">Filter by Category</h3>
-                        <span className="text-xs text-gray-500">(Click to filter)</span>
                     </div>
 
                     <div className="flex flex-wrap gap-2">

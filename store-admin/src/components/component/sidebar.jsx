@@ -18,7 +18,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
 
     const handleLogout = async () => {
         try {
-            await api.post("/auth/logout"); // POST request to Spring Security
+            await api.post("/auth/logout");
             localStorage.removeItem("user");
             toast.success("Logged out successfully", "success");
             navigate("/"); // redirect to login page
@@ -31,7 +31,6 @@ const Sidebar = ({ collapsed, onToggle }) => {
     const getCurrentUser = async () => {
         try {
             const response = await api.get("/auth/me");
-            console.log("User data:", response.data);
             setUser(response.data);
         } catch (error) {
             console.error("Failed to fetch user:", error);

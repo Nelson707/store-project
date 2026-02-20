@@ -12,16 +12,20 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RegisterDto {
 
-    @NotEmpty
+    @NotEmpty(message = "Name is required")
     private String name;
 
-    @NotEmpty
-    @Email
+    @NotEmpty(message = "Email is required")
+    @Email(message = "Invalid email format")
     private String email;
 
+    @NotEmpty(message = "Phone number is required")
     private String phoneNumber;
-    private String role;
-    @Size(min = 8, message = "minimum password length is 8 characters")
+
+    @NotEmpty(message = "Password is required")
+    @Size(min = 8, message = "Minimum password length is 8 characters")
     private String password;
+
+    @NotEmpty(message = "Confirm password is required")
     private String confirmPassword;
 }

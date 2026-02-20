@@ -82,32 +82,46 @@ public class AuthController {
         // 5. Save
         userRepository.save(user);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body("User registered successfully");
+        // Generate token and return auth response just like login
+        String token = jwtUtil.generateToken(user.getEmail());
+
+        AuthResponseDto response = new AuthResponseDto(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPhoneNumber(),
+                user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()),
+                token
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/users/create-admin")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> createAdminUser(@RequestBody Map<String, String> body) {
-        if (userRepository.findByEmail(body.get("email")).isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already registered");
+    public ResponseEntity<?> createAdminUser(@Valid @RequestBody RegisterDto request ) {
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Email already registered");
         }
 
         Role adminRole = roleRepository.findByName(Role.ADMIN)
                 .orElseThrow(() -> new RuntimeException("Admin role not found"));
 
         AppUser user = new AppUser();
-        user.setName(body.get("name"));
-        user.setEmail(body.get("email"));
-        user.setPhoneNumber(body.get("phoneNumber"));
-        user.setPassword(passwordEncoder.encode(body.get("password")));
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRoles(Collections.singleton(adminRole));
         user.setEnabled(true);
 
         userRepository.save(user);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("Admin user created successfully");
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("Admin user created successfully");
     }
 
     @PostMapping("/login")

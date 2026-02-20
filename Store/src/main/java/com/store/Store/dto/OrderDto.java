@@ -87,6 +87,7 @@ public class OrderDto {
         private String shippingCounty;
         private String orderNotes;
         private BigDecimal totalAmount;
+        private boolean cancellable;
         private LocalDateTime createdAt;
         private List<OrderItemResponse> items;
     }

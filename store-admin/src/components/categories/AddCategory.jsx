@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 import Layout from "../component/layout";
 import {
     ArrowLeft,
-    PlusCircle,
     Tag,
     XCircle
 } from "lucide-react";
@@ -101,7 +100,7 @@ const AddCategory = () => {
                                 <button
                                     type="submit"
                                     disabled={loading || !name.trim()}
-                                    className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    className="px-5 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 font-medium"
                                 >
                                     {loading ? (
                                         <>
@@ -110,7 +109,6 @@ const AddCategory = () => {
                                         </>
                                     ) : (
                                         <>
-                                            <PlusCircle className="h-4 w-4" />
                                             Create Category
                                         </>
                                     )}

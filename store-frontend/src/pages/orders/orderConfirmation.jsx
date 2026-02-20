@@ -34,7 +34,7 @@ export default function OrderConfirmation() {
                     <h2 className="text-xl font-semibold text-gray-700 mb-2">No order found</h2>
                     <p className="text-gray-500 mb-6">It looks like you arrived here without placing an order.</p>
                     <button
-                        onClick={() => navigate("/")}
+                        onClick={() => navigate("/products")}
                         className="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800"
                     >
                         Continue Shopping
@@ -154,7 +154,7 @@ export default function OrderConfirmation() {
                 {/* Actions */}
                 <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
                     <button
-                        onClick={() => navigate("/")}
+                        onClick={() => navigate("/products")}
                         className="px-8 py-3 bg-gray-900 text-white font-medium rounded-xl hover:bg-gray-800 transition-colors text-sm"
                     >
                         Continue Shopping
