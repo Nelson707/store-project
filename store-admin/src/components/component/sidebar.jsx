@@ -16,6 +16,9 @@ const Sidebar = ({ collapsed, onToggle }) => {
         }));
     };
 
+    const getInitials = (name = '') =>
+    name.split(' ').map(n => n[0]).join('').toUpperCase()
+
     const handleLogout = async () => {
         try {
             await api.post("/auth/logout");
@@ -226,7 +229,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
             <div className="p-4 border-t border-gray-200">
                 <div className={`flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`}>
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
-                        NS
+                        <span>{getInitials(user?.name)}</span>
                     </div>
                     {!collapsed && (
                         <div className="flex-1 min-w-0">

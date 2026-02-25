@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -34,5 +37,9 @@ public class AppUser {
     )
     private Set<Role> roles;
 
-    private boolean enabled = false; // for email verification
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    private boolean enabled = true;
 }

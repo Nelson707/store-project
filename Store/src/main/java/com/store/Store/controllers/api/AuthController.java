@@ -77,7 +77,6 @@ public class AuthController {
         user.setPhoneNumber(dto.getPhoneNumber());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRoles(Collections.singleton(role));
-        user.setEnabled(true); // set false if you plan email verification
 
         // 5. Save
         userRepository.save(user);
@@ -116,7 +115,6 @@ public class AuthController {
         user.setPhoneNumber(request.getPhoneNumber());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRoles(Collections.singleton(adminRole));
-        user.setEnabled(true);
 
         userRepository.save(user);
 

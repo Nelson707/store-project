@@ -5,7 +5,7 @@ import { toast } from 'react-toastify'
 import {
   ShoppingBag,
   Search,
-  SlidersHorizontal,
+  Download,
   RefreshCw,
   ChevronDown,
   Truck,
@@ -39,6 +39,7 @@ const Orders = () => {
     setLoading(true)
     try {
       const response = await api.get('/admin/orders')
+      console.log("Orders data:", response.data)
       setOrders(response.data)
     } catch (error) {
       console.error(error)
@@ -49,6 +50,81 @@ const Orders = () => {
   }
 
   useEffect(() => { fetchOrders() }, [])
+
+  const exportToCSV = () => {
+    // Define CSV headers
+    const headers = [
+      'Order ID',
+      'Customer Name',
+      'Customer Email',
+      'Phone',
+      'Total Amount',
+      'Status',
+      'Payment Status',
+      'Payment Method',
+      'Order Date',
+      'Shipping Address',
+      'City',
+      'County',
+      'Products'
+    ];
+
+    // Transform orders data into CSV rows
+    const csvRows = orders.map(order => {
+      // Format products as a string
+      const productsList = order.items
+        .map(item => `${item.productName} (Qty: ${item.quantity})`)
+        .join('; ');
+
+      // Format date
+      const orderDate = new Date(order.createdAt).toLocaleDateString();
+
+      return [
+        `ORD-${String(order.id).padStart(3, '0')}`,
+        order.userName,
+        order.userEmail,
+        order.shippingPhone,
+        order.totalAmount,
+        order.status,
+        order.paymentStatus,
+        order.paymentMethod,
+        orderDate,
+        order.shippingAddress,
+        order.shippingCity,
+        order.shippingCounty,
+        productsList
+      ];
+    });
+
+    // Combine headers and rows
+    const csvContent = [
+      headers.join(','),
+      ...csvRows.map(row =>
+        row.map(cell => {
+          const value = cell === null || cell === undefined ? '' : String(cell);
+          return value.includes(',') || value.includes('"') || value.includes('\n')
+            ? `"${value.replace(/"/g, '""')}"`
+            : value;
+        }).join(',')
+      )
+    ].join('\n');
+
+    // Create and download CSV file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    // Generate filename with current date
+    const date = new Date().toISOString().split('T')[0];
+    link.setAttribute('href', url);
+    link.setAttribute('download', `orders_export_${date}.csv`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   // ── Update order status ──────────────────────────────────────────────────────
   const handleStatusChange = async (orderId, newStatus) => {
@@ -186,8 +262,8 @@ const Orders = () => {
                     key={filter}
                     onClick={() => setSelectedFilter(filter)}
                     className={`px-4 py-2 text-sm font-medium rounded-lg capitalize whitespace-nowrap transition-all ${selectedFilter === filter
-                        ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                   >
                     {filter}
@@ -206,11 +282,12 @@ const Orders = () => {
                   />
                 </div>
                 <button
-                  onClick={() => { setSearchTerm(''); setSelectedFilter('all') }}
-                  className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                  title="Clear filters"
+                  onClick={exportToCSV}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                  title="Export to CSV"
                 >
-                  <SlidersHorizontal className="w-5 h-5 text-gray-600" strokeWidth={1.5} />
+                  <Download className="w-4 h-4" strokeWidth={2} />
+                  Export CSV
                 </button>
               </div>
             </div>
@@ -444,8 +521,8 @@ const Orders = () => {
                         onClick={() => handleStatusChange(selectedOrder.id, s)}
                         disabled={selectedOrder.status === s || updatingStatus === selectedOrder.id}
                         className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all disabled:opacity-40 disabled:cursor-not-allowed ${selectedOrder.status === s
-                            ? getStatusColor(s)
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                          ? getStatusColor(s)
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                           }`}
                       >
                         {s.charAt(0) + s.slice(1).toLowerCase()}
