@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +19,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/products")
@@ -134,5 +136,22 @@ public class ProductApiController {
         try {
             Files.deleteIfExists(Paths.get("public/images/" + filename));
         } catch (Exception ignored) {}
+    }
+
+    @PostMapping("/{id}/view")
+    public ResponseEntity<?> recordView(@PathVariable Long id) {
+        Product product = productRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        product.setViews(product.getViews() + 1);
+        productRepo.save(product);
+        return ResponseEntity.ok(Map.of("views", product.getViews()));
+    }
+
+    @GetMapping("/{id}/views")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getProductViews(@PathVariable Long id) {
+        Product product = productRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        return ResponseEntity.ok(Map.of("views", product.getViews()));
     }
 }

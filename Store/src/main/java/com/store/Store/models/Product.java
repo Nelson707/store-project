@@ -35,4 +35,7 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    @Column(columnDefinition = "BIGINT DEFAULT 0")
+    private Long views = 0L;
 }

@@ -6,6 +6,7 @@ import com.store.Store.models.Order;
 import com.store.Store.models.OrderItem;
 import com.store.Store.models.Product;
 import com.store.Store.repositories.AppUserRepository;
+import com.store.Store.repositories.OrderItemRepository;
 import com.store.Store.repositories.OrderRepository;
 import com.store.Store.repositories.ProductsRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductsRepository productRepository;
     private final AppUserRepository userRepository;
+    private final OrderItemRepository orderItemRepository;
 
     // ── Create Order ───────────────────────────────────────────────────────────
 
@@ -190,5 +192,9 @@ public class OrderService {
 
         order.setStatus(Order.OrderStatus.CANCELLED);
         return mapToResponse(orderRepository.save(order));
+    }
+
+    public long countOrdersByProduct(Long productId) {
+        return orderItemRepository.countByProductId(productId);
     }
 }

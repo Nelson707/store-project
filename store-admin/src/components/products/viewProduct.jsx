@@ -25,10 +25,14 @@ export default function ViewProduct() {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [relatedProducts, setRelatedProducts] = useState([]);
+    const [totalViews, setTotalViews] = useState(0);
+    const [orderCount, setOrderCount] = useState(0);
 
     useEffect(() => {
         fetchProduct();
         fetchRelatedProducts();
+        fetchViews(id);
+        fetchProductOrderCount(id);
     }, [id]);
 
     const fetchProduct = async () => {
@@ -41,6 +45,26 @@ export default function ViewProduct() {
             console.error(err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchViews = async (id) => {
+        try {
+            const response = await api.get(`/products/${id}/views`);
+            console.log("Product views:", response.data.views);
+            setTotalViews(response.data.views);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const fetchProductOrderCount = async (id) => {
+        try {
+            const response = await api.get(`/admin/orders/products/${id}/order-count`);
+            console.log("Product order count:", response.data.orderCount);
+            setOrderCount(response.data.orderCount);
+        } catch (error) {
+            console.error(error);
         }
     };
 
@@ -320,8 +344,8 @@ export default function ViewProduct() {
                                     <div className="bg-gray-50 rounded-lg p-4">
                                         <label className="text-sm text-gray-500 block mb-1">Status</label>
                                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${product.isActive
-                                                ? 'bg-green-100 text-green-800'
-                                                : 'bg-gray-100 text-gray-800'
+                                            ? 'bg-green-100 text-green-800'
+                                            : 'bg-gray-100 text-gray-800'
                                             }`}>
                                             {product.isActive ? 'Active' : 'Inactive'}
                                         </span>
@@ -335,8 +359,8 @@ export default function ViewProduct() {
                             <div className="bg-white rounded-xl shadow-sm p-5">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm text-gray-500">Views Today</p>
-                                        <p className="text-2xl font-bold text-gray-900">0</p>
+                                        <p className="text-sm text-gray-500">Product Views</p>
+                                        <p className="text-2xl font-bold text-gray-900">{totalViews}</p>
                                     </div>
                                     <BarChart className="h-8 w-8 text-blue-500" />
                                 </div>
@@ -345,8 +369,8 @@ export default function ViewProduct() {
                             <div className="bg-white rounded-xl shadow-sm p-5">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm text-gray-500">Orders This Month</p>
-                                        <p className="text-2xl font-bold text-gray-900">0</p>
+                                        <p className="text-sm text-gray-500">Total Orders</p>
+                                        <p className="text-2xl font-bold text-gray-900">{orderCount}</p>
                                     </div>
                                     <Package className="h-8 w-8 text-green-500" />
                                 </div>

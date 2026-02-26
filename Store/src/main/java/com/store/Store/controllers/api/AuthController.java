@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -125,35 +127,43 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginDto dto) {
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        dto.getEmail(),
-                        dto.getPassword()
-                )
-        );
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            dto.getEmail(),
+                            dto.getPassword()
+                    )
+            );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // Generate JWT token
-        String token = jwtUtil.generateToken(dto.getEmail());
+            // Generate JWT token
+            String token = jwtUtil.generateToken(dto.getEmail());
 
-        String email = authentication.getName();
-        AppUser user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+            String email = authentication.getName();
+            AppUser user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
-        AuthResponseDto response = new AuthResponseDto(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getPhoneNumber(),
-                user.getRoles()
-                        .stream()
-                        .map(Role::getName)
-                        .collect(Collectors.toSet()),
-                token  // Include JWT token in response
-        );
+            AuthResponseDto response = new AuthResponseDto(
+                    user.getId(),
+                    user.getName(),
+                    user.getEmail(),
+                    user.getPhoneNumber(),
+                    user.getRoles()
+                            .stream()
+                            .map(Role::getName)
+                            .collect(Collectors.toSet()),
+                    token  // Include JWT token in response
+            );
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+        }catch (DisabledException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Account is disabled. Please contact support.");
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid email or password");
+        }
     }
 
     @PostMapping("/logout")
@@ -338,6 +348,21 @@ public class AuthController {
         userRepository.save(user);
 
         return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
+    }
+
+    @PutMapping("/users/{id}/toggle-enabled")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> toggleUserEnabled(@PathVariable Long id) {
+        AppUser user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setEnabled(!user.isEnabled());
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of(
+                "message", user.isEnabled() ? "User enabled" : "User disabled",
+                "enabled", user.isEnabled()
+        ));
     }
 
     // Delete user

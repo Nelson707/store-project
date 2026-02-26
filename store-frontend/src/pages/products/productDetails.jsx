@@ -22,6 +22,7 @@ export default function ProductDetails() {
             try {
                 const response = await api.get(`/products/${id}`);
                 setProduct(response.data);
+                await api.post(`/products/${id}/view`);
             } catch (error) {
                 console.error(error);
                 toastify("Failed to load product", "error");

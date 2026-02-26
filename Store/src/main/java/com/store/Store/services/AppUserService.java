@@ -28,6 +28,7 @@ public class AppUserService implements UserDetailsService {
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
                 .password(user.getPassword())
+                .disabled(!user.isEnabled())
                 .authorities(mapRoles(user))
                 .build();
     }

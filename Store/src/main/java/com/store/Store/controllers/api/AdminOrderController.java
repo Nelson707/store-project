@@ -2,12 +2,14 @@ package com.store.Store.controllers.api;
 
 import com.store.Store.dto.OrderDto.*;
 import com.store.Store.services.AdminOrderService;
+import com.store.Store.services.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/orders")
@@ -16,6 +18,8 @@ import java.util.List;
 public class AdminOrderController {
 
     private final AdminOrderService adminOrderService;
+    private final OrderService orderService;
+
 
     /**
      * GET /api/admin/orders
@@ -67,5 +71,12 @@ public class AdminOrderController {
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         adminOrderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/products/{id}/order-count")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getProductOrderCount(@PathVariable Long id) {
+        long count = orderService.countOrdersByProduct(id);
+        return ResponseEntity.ok(Map.of("orderCount", count));
     }
 }

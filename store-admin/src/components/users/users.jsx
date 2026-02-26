@@ -42,6 +42,9 @@ const SystemUsers = () => {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [addForm, setAddForm] = useState({ name: "", email: "", phoneNumber: "", password: "", confirmPassword: "" });
   const [addError, setAddError] = useState(null);
+  const [openMenuId, setOpenMenuId] = useState(null);
+
+  const toggleMenu = (id) => setOpenMenuId(prev => prev === id ? null : id);
 
   const usersPerPage = 10
 
@@ -68,6 +71,18 @@ const SystemUsers = () => {
       getUsers();
     } catch (error) {
       console.error("Failed to update user:", error);
+    }
+  };
+
+  const toggleUserEnabled = async (userId) => {
+    try {
+      const response = await api.put(`/auth/users/${userId}/toggle-enabled`);
+      setUsers(prev =>
+        prev.map(u => u.id === userId ? { ...u, enabled: response.data.enabled } : u)
+      );
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error('Failed to update user status');
     }
   };
 
@@ -196,6 +211,12 @@ const SystemUsers = () => {
       ? <CheckCircle className="h-3 w-3 mr-1" />
       : <XCircle className="h-3 w-3 mr-1" />
   }
+
+  useEffect(() => {
+    const handleClickOutside = () => setOpenMenuId(null);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   return (
     <Layout title="Users" subtitle="System Users">
@@ -487,9 +508,26 @@ const SystemUsers = () => {
                             <button className="text-red-600 hover:text-red-900 transition-colors" onClick={() => handleDelete(user.id)}>
                               <Trash2 className="h-5 w-5" />
                             </button>
-                            <button className="text-gray-400 hover:text-gray-600 transition-colors">
-                              <MoreVertical className="h-5 w-5" />
-                            </button>
+                            <div className="relative">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); toggleMenu(user.id); }}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                              >
+                                <MoreVertical className="h-5 w-5" />
+                              </button>
+
+                              {openMenuId === user.id && (
+                                <div className="absolute right-0 z-10 mt-1 w-40 bg-white rounded-md shadow-lg border border-gray-200">
+                                  <button
+                                    onClick={() => { toggleUserEnabled(user.id, user.enabled); setOpenMenuId(null); }}
+                                    className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${user.enabled ? 'text-red-500 hover:text-red-700' : 'text-green-500 hover:text-green-700'
+                                      }`}
+                                  >
+                                    {user.enabled ? 'Disable User' : 'Enable User'}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </td>
                       </tr>
@@ -674,7 +712,7 @@ const SystemUsers = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                 <input
                   type="password"
-                  autoComplete="new-password" 
+                  autoComplete="new-password"
                   value={addForm.password}
                   onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -686,7 +724,7 @@ const SystemUsers = () => {
                 <input
                   type="password"
                   value={addForm.confirmPassword}
-                  autoComplete="new-password" 
+                  autoComplete="new-password"
                   onChange={(e) => setAddForm({ ...addForm, confirmPassword: e.target.value })}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
