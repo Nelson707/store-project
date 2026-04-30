@@ -1,8 +1,8 @@
 import { useState } from "react";
-import api from "../api/axios";
 import { Link } from "react-router-dom";
 import { toastify } from "../utils/toast";
 import { useNavigate } from "react-router-dom";
+import AuthService from "../api/authentication";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -19,23 +19,18 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const response = await api.post("/auth/login", form);
-      console.log("user response", response);
+      const userData = await AuthService.login(form);
 
-      if (response.status === 200) {
-        const userData = response.data;
-
-        // Check if user has ADMIN role
-        if (!userData.roles.includes("USER")) {
-          toastify("Access denied. User privileges required.", "error");
-          return;
-        }
-
-        toastify("Login successful", "success");
-        // Store user data with JWT token
-        localStorage.setItem("user", JSON.stringify(userData));
-        navigate("/home");
+      // Check if user has ADMIN role
+      if (!userData.roles.includes("USER")) {
+        toastify("Access denied. User privileges required.", "error");
+        return;
       }
+
+      toastify("Login successful", "success");
+      // Store user data with JWT token
+      AuthService.saveUser(userData);
+      navigate("/home");
     } catch (error) {
       console.error(error);
       toastify(error.response?.data || "Failed to login user", "error");

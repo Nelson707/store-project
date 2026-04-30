@@ -159,10 +159,10 @@ public class AuthController {
             return ResponseEntity.ok(response);
         }catch (DisabledException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Account is disabled. Please contact support.");
+                    .body(Map.of("message", "Account is disabled. Please contact support."));
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid email or password");
+                    .body(Map.of("message", "Invalid email or password"));
         }
     }
 

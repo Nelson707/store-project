@@ -4,6 +4,7 @@ import Layout from "../../components/layout/layout";
 import api from "../../api/axios";
 import { toastify } from "../../utils/toast";
 import { useCart } from "../../context/CartContext";
+import OrderService from "../../api/order";
 
 const formatKES = (amount) => `KES ${Number(amount).toLocaleString("en-KE")}`;
 
@@ -123,9 +124,9 @@ export default function Checkout() {
                 })),
             };
 
-            const response = await api.post("/orders", payload);
+            const response = await OrderService.placeOrder(payload);
             clearCart();
-            navigate("/order-confirmation", { state: { order: response.data } });
+            navigate("/order-confirmation", { state: { order: response } });
         } catch (error) {
             const message =
                 error?.response?.data?.message || "Failed to place order. Please try again.";

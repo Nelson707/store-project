@@ -4,6 +4,8 @@ import Layout from '../component/layout'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from 'react-toastify';
 import api from '../../api/axios';
+import OrderService from '../../api/order';
+import UserService from '../../api/user';
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -126,8 +128,8 @@ const Dashboard = () => {
 
     const getAdminUsers = async () => {
         try {
-            const response = await api.get("/auth/users/admins");
-            setAdminUsers(response.data.admins || []);
+            const data = await UserService.getAdminUsers();
+            setAdminUsers(data);
         } catch (error) {
             toast.error("Failed to load admin users. Please try again.");
         }
@@ -135,8 +137,8 @@ const Dashboard = () => {
 
     const getRegularUsers = async () => {
         try {
-            const response = await api.get("/auth/users/regular");
-            setRegularUsers(response.data.users || []);
+            const data = await UserService.getRegularUsers();
+            setRegularUsers(data);
         } catch (error) {
             toast.error("Failed to load regular users. Please try again.");
         }
@@ -144,8 +146,8 @@ const Dashboard = () => {
 
     const fetchOrders = async () => {
         try {
-            const response = await api.get('/admin/orders');
-            setOrders(response.data || []);
+            const data = await OrderService.getAdminOrders();
+            setOrders(data);
         } catch (error) {
             toast.error('Failed to load orders');
         }

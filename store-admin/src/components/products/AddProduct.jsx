@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { createProduct } from "../../api/products";
-import api from "../../api/axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Layout from "../component/layout";
@@ -15,6 +13,8 @@ import {
     PlusCircle,
     Image as ImageIcon
 } from "lucide-react";
+import ProductService from "../../api/product";
+import CategoryService from "../../api/category";
 
 export default function AddProduct() {
     const navigate = useNavigate();
@@ -32,7 +32,16 @@ export default function AddProduct() {
     });
 
     useEffect(() => {
-        api.get("/categories").then(res => setCategories(res.data));
+        const fetchCategories = async () => {
+            try {
+                const data = await CategoryService.getAll();
+                setCategories(data);
+            } catch (err) {
+                console.error("Failed to load categories", err);
+            }
+        };
+
+        fetchCategories();
     }, []);
 
     const handleChange = (e) => {
@@ -89,7 +98,7 @@ export default function AddProduct() {
         }
 
         try {
-            await createProduct(fd);
+            await ProductService.create(fd);
             toast.success("Product created successfully!");
             navigate("/products");
         } catch (err) {

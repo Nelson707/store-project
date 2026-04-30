@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createCategory } from "../../api/category";
 import { toast } from "react-toastify";
 import Layout from "../component/layout";
 import {
@@ -8,6 +7,7 @@ import {
     Tag,
     XCircle
 } from "lucide-react";
+import CategoryService from "../../api/category";
 
 const AddCategory = () => {
     const [name, setName] = useState("");
@@ -27,7 +27,7 @@ const AddCategory = () => {
         setError("");
 
         try {
-            await createCategory({ name: name.trim() });
+            await CategoryService.create({ name: name.trim() });
             toast.success("Category created successfully!");
             navigate("/categories");
         } catch (err) {

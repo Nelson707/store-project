@@ -3,6 +3,7 @@ import api from "../api/axios";
 import { Link } from "react-router-dom";
 import { toastify } from "../utils/toast";
 import { useNavigate } from "react-router-dom";
+import AuthService from "../api/authentication";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -22,13 +23,12 @@ export default function Register() {
     e.preventDefault();
 
     try {
-      const response = await api.post("/auth/register", form);
+      const userData = await AuthService.register(form);
 
-      if (response.status === 201) {
-        toastify("User created successfully", "success");
-        localStorage.setItem("user", JSON.stringify(response.data));
-        navigate("/home");
-      }
+      toastify("User created successfully", "success");
+      AuthService.saveUser(userData);
+      navigate("/home");
+
     } catch (error) {
       console.error(error);
       toastify(error.response?.data || "Failed to create user", "error");

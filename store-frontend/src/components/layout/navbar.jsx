@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import api from '../../api/axios';
 import { toastify } from '../../utils/toast';
+import AuthService from '../../api/authentication';
 
 const Navbar = ({ collapsed, onToggle }) => {
     const location = useLocation();
@@ -11,26 +11,22 @@ const Navbar = ({ collapsed, onToggle }) => {
 
     const handleLogout = async () => {
         try {
-            await api.post("/auth/logout"); // POST request to Spring Security
-            localStorage.removeItem("user");
+            await AuthService.logout();
+            AuthService.clearUser();
             toastify("Logged out successfully", "success");
             navigate("/"); // redirect to login page
         } catch (error) {
-            toastify("Failed to logout", "error");
+            toast.error("Failed to logout", "error");
             console.error(error);
         }
     };
 
-    const getCurrentUser = async () => {
+     const getCurrentUser = async () => {
         try {
-            const response = await api.get("/auth/me");
-            console.log("User data:", response.data);
-            setUser(response.data);
+            const data = await AuthService.getCurrentUser();
+            setUser(data);
         } catch (error) {
             console.error("Failed to fetch user:", error);
-            return null;
-        } finally {
-            setLoading(false);
         }
     };
 

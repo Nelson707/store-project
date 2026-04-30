@@ -1,0 +1,55 @@
+services:
+
+  db:
+    image: mariadb:10.6
+    container_name: mariadb_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: storedb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  backend:
+    build: ./Store
+    container_name: spring_backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    volumes:
+      - ./Store/public/images:/app/public/images
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/storedb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      JWT_SECRET: 242303add29cb55f9672543b4ad61b8ef3ec9a6d5ec8370bbad5a0473f33abe1bc660e0ae6ce0a68af48adb8db0bdcd7430c058e5eb1bc3f70d8dce875180b45
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+  store-admin:
+    build:
+      context: ./store-admin
+      args:
+        VITE_API_URL: http://localhost:8080/api
+    container_name: store_admin_frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+  store-frontend:
+    build:
+      context: ./store-frontend
+      args:
+        VITE_API_URL: http://localhost:8080/api
+    container_name: store_frontend
+    ports:
+      - "5174:80"
+    depends_on:
+      - backend
+
+volumes:
+  mariadb_data:

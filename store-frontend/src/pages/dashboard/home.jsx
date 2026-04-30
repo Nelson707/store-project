@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../../components/layout/layout";
-import api from "../../api/axios";
 import { toastify } from "../../utils/toast";
 import ProductGrid from "../products/productGrid";
+import ProductService from "../../api/product";
+import CategoryService from "../../api/category";
 
 export default function Home() {
     const [products, setProducts] = useState([]);
@@ -13,16 +14,14 @@ export default function Home() {
 
     const fetchProducts = async () => {
         try {
-            const response = await api.get("/products");
-            if (response.status === 200) {
-                // Sort by createdAt (newest first) and take last 10
-                const sortedByDate = [...response.data].sort((a, b) =>
-                    new Date(b.createdAt) - new Date(a.createdAt)
-                );
+            const data = await ProductService.getAll();
+            // Sort by createdAt (newest first)
+            const sortedByDate = [...data].sort(
+                (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+            );
 
-                const last10Items = sortedByDate.slice(0, 10);
-                setProducts(last10Items);
-            }
+            const last10Items = sortedByDate.slice(0, 10);
+            setProducts(last10Items);
         } catch (error) {
             console.error(error);
             toastify("Failed to load products", "error");
@@ -33,10 +32,9 @@ export default function Home() {
 
     const fetchCategories = async () => {
         try {
-            const response = await api.get("/categories");
-            if (response.status === 200) {
-                setCategories(response.data);
-            }
+            const data = await CategoryService.getAll();
+            setCategories(data);
+
         } catch (error) {
             console.error(error);
             toastify("Failed to load categories", "error");

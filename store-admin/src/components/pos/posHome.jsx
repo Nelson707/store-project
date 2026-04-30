@@ -18,6 +18,10 @@ import {
   Clock,
   CheckCircle
 } from 'lucide-react'
+import UserService from '../../api/user'
+import ProductService from '../../api/product'
+import CategoryService from '../../api/category'
+import OrderService from '../../api/order'
 
 const POSHome = () => {
   const [user, setUser] = useState(null)
@@ -49,32 +53,32 @@ const POSHome = () => {
 
   const getCurrentUser = async () => {
     try {
-      const response = await api.get("/auth/me");
-      console.log("User data home:", response.data);
-      setUser(response.data);
+      const data = await UserService.getCurrentUser();
+      setUser(data);
     } catch (error) {
       console.error("Failed to fetch user:", error);
-      return null;
     }
   };
 
   const getInitials = (name = '') =>
     name.split(' ').map(n => n[0]).join('').toUpperCase()
 
-  const fetchProducts = () => {
-    api.get("/products")
-      .then(res => {
-        setProducts(res.data);
-      })
-      .catch(err => console.error(err))
+  const fetchProducts = async () => {
+    try {
+      const data = await ProductService.getAll();
+      setProducts(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const fetchCategories = () => {
-    api.get("/categories")
-      .then(res => {
-        setCategories(res.data)
-      })
-      .catch(err => console.error(err));
+  const fetchCategories = async () => {
+    try {
+      const data = await CategoryService.getAll();
+      setCategories(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // Checkout function
@@ -188,7 +192,7 @@ const POSHome = () => {
                 )}
               </button>
 
-              
+
             </div>
           </div>
         </div>

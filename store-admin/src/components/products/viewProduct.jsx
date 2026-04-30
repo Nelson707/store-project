@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import api from "../../api/axios";
 import { toast } from "react-toastify";
 import Layout from "../component/layout";
 import {
@@ -18,6 +17,7 @@ import {
     CheckCircle,
     XCircle
 } from "lucide-react";
+import ProductService from "../../api/product";
 
 export default function ViewProduct() {
     const { id } = useParams();
@@ -38,8 +38,9 @@ export default function ViewProduct() {
     const fetchProduct = async () => {
         try {
             setLoading(true);
-            const response = await api.get(`/products/${id}`);
-            setProduct(response.data);
+            const data = await ProductService.getById(id);
+            console.log("Product details:", data);
+            setProduct(data);
         } catch (err) {
             toast.error("Failed to load product details");
             console.error(err);
@@ -50,9 +51,8 @@ export default function ViewProduct() {
 
     const fetchViews = async (id) => {
         try {
-            const response = await api.get(`/products/${id}/views`);
-            console.log("Product views:", response.data.views);
-            setTotalViews(response.data.views);
+            const views = await ProductService.getViews(id);
+            setTotalViews(views);
         } catch (error) {
             console.error(error);
         }
@@ -60,9 +60,8 @@ export default function ViewProduct() {
 
     const fetchProductOrderCount = async (id) => {
         try {
-            const response = await api.get(`/admin/orders/products/${id}/order-count`);
-            console.log("Product order count:", response.data.orderCount);
-            setOrderCount(response.data.orderCount);
+            const count = await ProductService.getOrderCount(id);
+            setOrderCount(count);
         } catch (error) {
             console.error(error);
         }
@@ -70,8 +69,11 @@ export default function ViewProduct() {
 
     const fetchRelatedProducts = async () => {
         try {
-            const response = await api.get(`/products?categoryId=${product?.category?.id}&limit=4`);
-            setRelatedProducts(response.data.filter(p => p.id !== parseInt(id)));
+            const data = await ProductService.getRelated(
+                product?.category?.id,
+                id
+            );
+            setRelatedProducts(data);
         } catch (err) {
             console.error("Failed to load related products", err);
         }
@@ -81,7 +83,7 @@ export default function ViewProduct() {
         if (!window.confirm("Are you sure you want to delete this product? This action cannot be undone.")) return;
 
         try {
-            await api.delete(`/products/${id}`);
+            await ProductService.delete(id);
             toast.success("Product deleted successfully");
             navigate("/products");
         } catch (err) {

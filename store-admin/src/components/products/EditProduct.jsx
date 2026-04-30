@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../../api/axios";
-import { updateProduct } from "../../api/products";
 import { toast } from "react-toastify";
 import Layout from "../component/layout";
 import {
@@ -17,6 +15,8 @@ import {
     Layers,
     RefreshCw
 } from "lucide-react";
+import ProductService from "../../api/product";
+import CategoryService from "../../api/category";
 
 export default function EditProduct() {
     const { id } = useParams();
@@ -41,12 +41,12 @@ export default function EditProduct() {
             try {
                 setFetchLoading(true);
                 // Fetch categories
-                const categoriesRes = await api.get("/categories");
-                setCategories(categoriesRes.data);
+                const categoriesRes = await CategoryService.getAll();
+                setCategories(categoriesRes);
 
                 // Fetch product
-                const productsRes = await api.get(`/products`);
-                const product = productsRes.data.find(p => p.id === parseInt(id));
+                const productsRes = await ProductService.getAll();
+                const product = productsRes.find(p => p.id === parseInt(id));
 
                 if (product) {
                     setForm({
@@ -144,7 +144,7 @@ export default function EditProduct() {
         }
 
         try {
-            await updateProduct(id, fd);
+            await ProductService.update(id, fd);
             toast.success("Product updated successfully!");
             navigate("/products");
         } catch (err) {

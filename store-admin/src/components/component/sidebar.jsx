@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import api from '../../api/axios';
+import AuthService from '../../api/authentication';
 
 const Sidebar = ({ collapsed, onToggle }) => {
     const location = useLocation();
@@ -21,8 +22,8 @@ const Sidebar = ({ collapsed, onToggle }) => {
 
     const handleLogout = async () => {
         try {
-            await api.post("/auth/logout");
-            localStorage.removeItem("user");
+            await AuthService.logout();
+            AuthService.clearUser();
             toast.success("Logged out successfully", "success");
             navigate("/"); // redirect to login page
         } catch (error) {
@@ -33,11 +34,10 @@ const Sidebar = ({ collapsed, onToggle }) => {
 
     const getCurrentUser = async () => {
         try {
-            const response = await api.get("/auth/me");
-            setUser(response.data);
+            const data = await AuthService.getCurrentUser();
+            setUser(data);
         } catch (error) {
             console.error("Failed to fetch user:", error);
-            return null;
         }
     };
 

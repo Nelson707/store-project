@@ -17,6 +17,7 @@ import {
     PackageCheck,
     PackageSearch,
 } from 'lucide-react'
+import OrderService from '../../api/order';
 
 const PAYMENT_LABELS = {
     CASH_ON_DELIVERY: "Cash on Delivery",
@@ -38,10 +39,8 @@ const Orders = () => {
     const fetchOrders = async () => {
         setLoading(true)
         try {
-            const response = await api.get("/orders");
-            if (response.status === 200) {
-                setOrders(response.data);
-            }
+            const data = await OrderService.getAll();
+            setOrders(data);
         } catch (error) {
             console.error(error);
             toastify("Failed to load orders", "error");
@@ -52,15 +51,15 @@ const Orders = () => {
 
     const handleCancelOrder = async (orderId) => {
         try {
-            const response = await api.patch(`/orders/${orderId}/cancel`)
-            if (response.status === 200) {
-                toastify('Order cancelled successfully', 'success')
-                fetchOrders()
-            }
+            await OrderService.cancelOrder(orderId)
+
+            toastify('Order cancelled successfully', 'success')
+            fetchOrders()
+
         } catch (error) {
             console.error(error)
             toastify('Failed to update status')
-        } 
+        }
     }
 
     useEffect(() => {

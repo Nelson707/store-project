@@ -17,6 +17,8 @@ import {
     ChevronDown,
     ChevronUp
 } from "lucide-react";
+import ProductService from "../../api/product";
+import CategoryService from "../../api/category";
 
 export default function Products() {
     const [products, setProducts] = useState([]);
@@ -31,23 +33,29 @@ export default function Products() {
     const [showSearchFilters, setShowSearchFilters] = useState(false);
     const [searchResultsCount, setSearchResultsCount] = useState(0);
 
-    const fetchProducts = () => {
+    const fetchProducts = async () => {
         setLoading(true);
-        api.get("/products")
-            .then(res => {
-                setProducts(res.data);
-                setFilteredProducts(res.data);
-                console.log("Products", res.data)
-            })
-            .catch(err => console.error(err))
-            .finally(() => setLoading(false));
+        try {
+            const data = await ProductService.getAll();
+            setProducts(data);
+            setFilteredProducts(data);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const fetchCategories = () => {
-        api.get("/categories")
-            .then(res => setCategories(res.data))
-            .catch(err => console.error(err));
+    const fetchCategories = async () => {
+        try {
+            const data = await CategoryService.getAll();
+            setCategories(data);
+        } catch (err) {
+            console.error(err);
+        }
     };
+
+
 
     useEffect(() => {
         fetchProducts();
@@ -291,8 +299,8 @@ export default function Products() {
                         <button
                             onClick={() => setSelectedCategory(null)}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${!selectedCategory
-                                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                 }`}
                         >
                             All Products
@@ -305,8 +313,8 @@ export default function Products() {
                                     key={category.id}
                                     onClick={() => handleCategoryClick(category)}
                                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${selectedCategory?.id === category.id
-                                            ? 'bg-blue-100 text-blue-800 border-2 border-blue-500 shadow-md'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-transparent'
+                                        ? 'bg-blue-100 text-blue-800 border-2 border-blue-500 shadow-md'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-transparent'
                                         }`}
                                 >
                                     <span>{category.name}</span>

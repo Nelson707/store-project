@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "../../api/axios";
 import { Link } from "react-router-dom";
-import { getCategories, deleteCategory } from "../../api/category";
 import { toast } from "react-toastify";
 import Layout from "../component/layout";
 import {
@@ -15,6 +13,7 @@ import {
   X,
   FolderOpen,
 } from "lucide-react";
+import CategoryService from "../../api/category";
 
 const CategoryList = () => {
   const [categories, setCategories] = useState([]);
@@ -27,7 +26,7 @@ const CategoryList = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const data = await getCategories();
+      const data = await CategoryService.getAll();
       setCategories(data);
       setFilteredCategories(data);
     } catch (err) {
@@ -62,7 +61,7 @@ const CategoryList = () => {
 
     setDeleteLoading(id);
     try {
-      await deleteCategory(id);
+      await CategoryService.delete(id);
       setCategories(categories.filter((c) => c.id !== id));
       toast.success("Category deleted successfully");
     } catch (err) {

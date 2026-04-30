@@ -25,6 +25,7 @@ import {
   Users,
   UserCog
 } from 'lucide-react'
+import UserService from '../../api/user'
 
 const SystemUsers = () => {
   const [users, setUsers] = useState([])
@@ -52,9 +53,8 @@ const SystemUsers = () => {
     setLoading(true)
     setError(null)
     try {
-      const response = await api.get("/auth/users")
-      console.log("User data:", response.data)
-      setUsers(response.data)
+      const data = await UserService.getAllUsers()
+      setUsers(data)
     } catch (error) {
       console.error("Failed to fetch users:", error)
       setError("Failed to load users. Please try again.")
@@ -65,7 +65,7 @@ const SystemUsers = () => {
 
   const handleEdit = async () => {
     try {
-      await api.put(`/auth/users/${selectedUser.id}`, editForm);
+      await UserService.updateUser(selectedUser.id, editForm);
       toast.success("User updated successfully");
       closeEditModal();
       getUsers();
@@ -76,11 +76,15 @@ const SystemUsers = () => {
 
   const toggleUserEnabled = async (userId) => {
     try {
-      const response = await api.put(`/auth/users/${userId}/toggle-enabled`);
+      const data = await UserService.toggleUserEnabled(userId);
+
       setUsers(prev =>
-        prev.map(u => u.id === userId ? { ...u, enabled: response.data.enabled } : u)
+        prev.map(u =>
+          u.id === userId ? { ...u, enabled: data.enabled } : u
+        )
       );
-      toast.success(response.data.message);
+
+      toast.success(data.message);
     } catch (error) {
       toast.error('Failed to update user status');
     }
@@ -88,10 +92,11 @@ const SystemUsers = () => {
 
   const handleDelete = async (userId) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
+
     try {
-      await api.delete(`/auth/users/${userId}`);
+      await UserService.deleteUser(userId);
       toast.success("User deleted successfully");
-      getUsers(); // refresh list
+      getUsers();
     } catch (error) {
       console.error("Failed to delete user:", error);
     }
@@ -114,18 +119,29 @@ const SystemUsers = () => {
 
   const handleAddAdmin = async () => {
     setAddError(null);
+
     if (addForm.password !== addForm.confirmPassword) {
       setAddError("Passwords do not match");
       return;
     }
+
     try {
-      await api.post("/auth/users/create-admin", addForm);
+      await UserService.createAdmin(addForm);
+
       toast.success("Admin user created successfully");
       setAddModalOpen(false);
-      setAddForm({ name: "", email: "", phoneNumber: "", password: "", confirmPassword: "" });
+
+      setAddForm({
+        name: "",
+        email: "",
+        phoneNumber: "",
+        password: "",
+        confirmPassword: ""
+      });
+
       getUsers();
     } catch (error) {
-      toast.error("Failed to create admin user", error);
+      toast.error("Failed to create admin user");
     }
   };
 

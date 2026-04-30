@@ -21,6 +21,7 @@ import {
     Package,
     RefreshCw
 } from 'lucide-react';
+import SalesService from '../../api/sale';
 
 const Sales = () => {
     const [sales, setSales] = useState([]);
@@ -50,54 +51,67 @@ const Sales = () => {
         fetchSales();
     }, [dateFilter, customDateRange.startDate, customDateRange.endDate]);
 
+    // const fetchSales = async () => {
+    //     setLoading(true);
+    //     try {
+    //         let url = '/sales';
+
+    //         // Add date filter to URL
+    //         if (dateFilter === 'All') {
+    //             url = '/sales/';
+    //         } 
+    //         else if (dateFilter === 'today') {
+    //             url = '/sales/today';
+    //         }
+    //         else if (dateFilter === 'week') {
+    //             url = '/sales/week';
+    //         }
+    //         else if (dateFilter === 'month') {
+    //             url = '/sales/month';
+    //         } else if (dateFilter === 'custom' && customDateRange.startDate && customDateRange.endDate) {
+    //             url = `/sales/range?start=${customDateRange.startDate}&end=${customDateRange.endDate}`;
+    //         }
+
+    //         const response = await api.get(url);
+
+    //         // Handle different response structures
+    //         let salesData = [];
+    //         if (Array.isArray(response.data)) {
+    //             salesData = response.data;
+    //         } else if (response.data.sales) {
+    //             salesData = response.data.sales;
+    //         }
+
+    //         setSales(salesData);
+    //         calculateStats(salesData);
+    //     } catch (error) {
+    //         console.error('Error fetching sales:', error);
+    //         // Fallback to get all sales if specific endpoint fails
+    //         try {
+    //             const response = await api.get('/sales');
+    //             setSales(response.data);
+    //             calculateStats(response.data);
+    //         } catch (fallbackError) {
+    //             console.error('Fallback error:', fallbackError);
+    //         }
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
     const fetchSales = async () => {
         setLoading(true);
         try {
-            let url = '/sales';
-
-            // Add date filter to URL
-            if (dateFilter === 'All') {
-                url = '/sales/';
-            } 
-            else if (dateFilter === 'today') {
-                url = '/sales/today';
-            }
-            else if (dateFilter === 'week') {
-                url = '/sales/week';
-            }
-            else if (dateFilter === 'month') {
-                url = '/sales/month';
-            } else if (dateFilter === 'custom' && customDateRange.startDate && customDateRange.endDate) {
-                url = `/sales/range?start=${customDateRange.startDate}&end=${customDateRange.endDate}`;
-            }
-
-            const response = await api.get(url);
-
-            // Handle different response structures
-            let salesData = [];
-            if (Array.isArray(response.data)) {
-                salesData = response.data;
-            } else if (response.data.sales) {
-                salesData = response.data.sales;
-            }
-
+            const salesData = await SalesService.getByFilter(dateFilter, customDateRange);
             setSales(salesData);
+            console.log("Sales data:", salesData);
             calculateStats(salesData);
         } catch (error) {
-            console.error('Error fetching sales:', error);
-            // Fallback to get all sales if specific endpoint fails
-            try {
-                const response = await api.get('/sales');
-                setSales(response.data);
-                calculateStats(response.data);
-            } catch (fallbackError) {
-                console.error('Fallback error:', fallbackError);
-            }
+            console.error("Error fetching sales:", error);
         } finally {
             setLoading(false);
         }
     };
-
     const calculateStats = (salesData) => {
         const totalRevenue = salesData.reduce((sum, sale) => sum + sale.totalAmount, 0);
         const cashSales = salesData.filter(s => s.paymentMethod === 'CASH').length;

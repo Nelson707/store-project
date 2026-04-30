@@ -3,6 +3,8 @@ import Layout from "../../components/layout/layout";
 import api from "../../api/axios";
 import { toastify } from "../../utils/toast";
 import ProductCard from "../../components/product/productCard";
+import ProductService from "../../api/product";
+import CategoryService from "../../api/category";
 
 export default function Products() {
     const [products, setProducts] = useState([]);
@@ -13,10 +15,8 @@ export default function Products() {
 
     const fetchProducts = async () => {
         try {
-            const response = await api.get("/products");
-            if (response.status === 200) {
-                setProducts(response.data);
-            }
+            const data = await ProductService.getAll();
+            setProducts(data);
         } catch (error) {
             console.error(error);
             toastify("Failed to load products", "error");
@@ -27,10 +27,8 @@ export default function Products() {
 
     const fetchCategories = async () => {
         try {
-            const response = await api.get("/categories");
-            if (response.status === 200) {
-                setCategories(response.data);
-            }
+            const data = await CategoryService.getAll();
+            setCategories(data);
         } catch (error) {
             console.error(error);
             toastify("Failed to load categories", "error");
@@ -89,8 +87,8 @@ export default function Products() {
                     <button
                         onClick={() => setActiveCategory("All")}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${activeCategory === "All"
-                                ? "bg-gray-950 text-white shadow-md"
-                                : "bg-white border border-gray-200 text-gray-600 hover:border-gray-400"
+                            ? "bg-gray-950 text-white shadow-md"
+                            : "bg-white border border-gray-200 text-gray-600 hover:border-gray-400"
                             }`}
                     >
                         All
@@ -100,8 +98,8 @@ export default function Products() {
                             key={cat.id}
                             onClick={() => setActiveCategory(cat.name)}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${activeCategory === cat.name
-                                    ? "bg-gray-950 text-white shadow-md"
-                                    : "bg-white border border-gray-200 text-gray-600 hover:border-gray-400"
+                                ? "bg-gray-950 text-white shadow-md"
+                                : "bg-white border border-gray-200 text-gray-600 hover:border-gray-400"
                                 }`}
                         >
                             {cat.name}

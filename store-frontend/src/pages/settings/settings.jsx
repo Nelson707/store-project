@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../../components/layout/layout';
 import api from '../../api/axios';
 import { toastify } from '../../utils/toast';
+import UserService from '../../api/user';
 
 const Settings = () => {
     const navigate = useNavigate();
@@ -22,14 +23,13 @@ const Settings = () => {
 
     const getCurrentUser = async () => {
         try {
-            const response = await api.get("/auth/me");
-            console.log("User data:", response.data);
-            setUser(response.data);
+            const data = await AuthService.getCurrentUser();
+            setUser(data);
             setFormData(prev => ({
                 ...prev,
-                name: response.data.name || '',
-                email: response.data.email || '',
-                phoneNumber: response.data.phoneNumber || ''
+                name: data.name || '',
+                email: data.email || '',
+                phoneNumber: data.phoneNumber || ''
             }));
         } catch (error) {
             console.error("Failed to fetch user:", error);
@@ -59,23 +59,15 @@ const Settings = () => {
     const handleProfileUpdate = async (e) => {
         e.preventDefault();
         try {
-            await api.put("/auth/me/update", {
+            await UserService.updateUser({
                 name: formData.name,
                 email: formData.email,
                 phoneNumber: formData.phoneNumber,
             });
             toastify("Profile updated successfully", "success");
             setIsEditing(false);
-            localStorage.clear();
+            AuthService.clearUser();
             navigate('/')
-            // // Update localStorage so navbar/header reflects new name
-            // const stored = JSON.parse(localStorage.getItem("user"));
-            // localStorage.setItem("user", JSON.stringify({
-            //     ...stored,
-            //     name: formData.name,
-            //     email: formData.email,
-            //     phoneNumber: formData.phoneNumber,
-            // }));
         } catch (error) {
             toastify("Failed to update profile:", error);
         }
@@ -84,7 +76,7 @@ const Settings = () => {
     const handlePasswordChange = async (e) => {
         e.preventDefault();
         try {
-            await api.put("/auth/me/change-password", {
+            await UserService.updatePassword({
                 currentPassword: formData.currentPassword,
                 newPassword: formData.newPassword,
                 confirmPassword: formData.confirmPassword,
@@ -123,7 +115,7 @@ const Settings = () => {
             {/* Notification Toast */}
             {notification.show && (
                 <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-500 ${notification.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' :
-                        'bg-red-50 text-red-800 border border-red-200'
+                    'bg-red-50 text-red-800 border border-red-200'
                     }`}>
                     <div className="flex items-center">
                         <span className="mr-2">{notification.type === 'success' ? '✅' : '❌'}</span>
@@ -160,8 +152,8 @@ const Settings = () => {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`py-4 px-1 inline-flex items-center space-x-2 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
-                                        ? 'border-blue-500 text-blue-600'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                    ? 'border-blue-500 text-blue-600'
+                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                     }`}
                             >
                                 <span>{tab.icon}</span>
@@ -284,7 +276,7 @@ const Settings = () => {
                                         type="password"
                                         id="currentPassword"
                                         name="currentPassword"
-                                        autoComplete="new-password" 
+                                        autoComplete="new-password"
                                         value={formData.currentPassword}
                                         onChange={handleInputChange}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -299,7 +291,7 @@ const Settings = () => {
                                         type="password"
                                         id="newPassword"
                                         name="newPassword"
-                                        autoComplete="new-password" 
+                                        autoComplete="new-password"
                                         value={formData.newPassword}
                                         onChange={handleInputChange}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -315,7 +307,7 @@ const Settings = () => {
                                         type="password"
                                         id="confirmPassword"
                                         name="confirmPassword"
-                                        autoComplete="new-password" 
+                                        autoComplete="new-password"
                                         value={formData.confirmPassword}
                                         onChange={handleInputChange}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

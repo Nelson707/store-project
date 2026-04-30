@@ -15,6 +15,7 @@ import {
   Eye,
   Package,
 } from 'lucide-react'
+import OrderService from '../../api/order'
 
 const PAYMENT_LABELS = {
   CASH_ON_DELIVERY: 'Cash on Delivery',
@@ -38,9 +39,8 @@ const Orders = () => {
   const fetchOrders = async () => {
     setLoading(true)
     try {
-      const response = await api.get('/admin/orders')
-      console.log("Orders data:", response.data)
-      setOrders(response.data)
+      const data = await OrderService.getAdminOrders()
+      setOrders(data)
     } catch (error) {
       console.error(error)
       toast.error('Failed to load orders')

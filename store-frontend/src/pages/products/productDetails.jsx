@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Layout from "../../components/layout/layout";
-import api from "../../api/axios";
 import { toastify } from "../../utils/toast";
 import { useCart } from "../../context/CartContext";
+import ProductService from "../../api/product";
 
 export default function ProductDetails() {
     const { id } = useParams();
@@ -20,9 +20,9 @@ export default function ProductDetails() {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await api.get(`/products/${id}`);
-                setProduct(response.data);
-                await api.post(`/products/${id}/view`);
+                const data = await ProductService.getById(id);
+                setProduct(data);
+                await ProductService.viewProduct(id);
             } catch (error) {
                 console.error(error);
                 toastify("Failed to load product", "error");
