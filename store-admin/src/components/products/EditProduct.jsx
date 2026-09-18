@@ -61,7 +61,7 @@ export default function EditProduct() {
 
                     // Set current image path
                     if (product.imageFileName) {
-                        setCurrentImage(`/images/${product.imageFileName}`);
+                        setCurrentImage(`http://localhost:8080/images/${product.imageFileName}`);
                     }
                 } else {
                     toast.error("Product not found");

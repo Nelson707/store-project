@@ -165,7 +165,7 @@ export default function ViewProduct() {
                         <div className="bg-white rounded-xl shadow-sm p-6">
                             <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 mb-4">
                                 <img
-                                    src={`/images/${product.imageFileName}`}
+                                    src={`http://localhost:8080/images/${product.imageFileName}`}
                                     alt={product.name}
                                     className="w-full h-full object-cover"
                                 />

@@ -28,6 +28,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: password
       JWT_SECRET: 242303add29cb55f9672543b4ad61b8ef3ec9a6d5ec8370bbad5a0473f33abe1bc660e0ae6ce0a68af48adb8db0bdcd7430c058e5eb1bc3f70d8dce875180b45
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      DEFAULT_ADMIN_EMAIL: admin@store.com
+      DEFAULT_ADMIN_PASSWORD: admin123
 
   store-admin:
     build:
@@ -40,6 +42,21 @@ services:
     depends_on:
       - backend
 
+  store-admin-dev:
+    build:
+      context: ./store-admin
+      dockerfile: Dockerfile.dev
+    container_name: store_admin_dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./store-admin:/app
+      - /app/node_modules
+    environment:
+      VITE_API_URL: http://localhost:8080/api
+    depends_on:
+      - backend
+
   store-frontend:
     build:
       context: ./store-frontend
@@ -48,6 +65,21 @@ services:
     container_name: store_frontend
     ports:
       - "5174:80"
+    depends_on:
+      - backend
+
+  store-frontend-dev:
+    build:
+      context: ./store-frontend
+      dockerfile: Dockerfile.dev
+    container_name: store_frontend_dev
+    ports:
+      - "5174:5173"
+    volumes:
+      - ./store-frontend:/app
+      - /app/node_modules
+    environment:
+      VITE_API_URL: http://localhost:8080/api
     depends_on:
       - backend
 

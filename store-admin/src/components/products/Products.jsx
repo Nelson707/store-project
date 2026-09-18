@@ -412,7 +412,7 @@ export default function Products() {
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 group-hover:border-blue-400 transition-colors">
                                                         <img
-                                                            src={`/images/${p.imageFileName}`}
+                                                            src={`http://localhost:8080/images/${p.imageFileName}`}
                                                             alt={p.name}
                                                             className="w-full h-full object-cover"
                                                             onError={(e) => {
